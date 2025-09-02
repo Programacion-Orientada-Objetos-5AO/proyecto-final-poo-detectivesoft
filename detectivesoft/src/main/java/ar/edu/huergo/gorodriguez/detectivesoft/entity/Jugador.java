@@ -6,7 +6,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue; 
 import jakarta.persistence.GenerationType; 
-import jakarta.persistence.Id; 
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table; 
 import lombok.Data; 
 import lombok.NoArgsConstructor; 
@@ -36,6 +38,11 @@ public class Jugador {
     @NotBlank(message = "La contraseña es requerida")
     private String password;
 
+    @ManyToOne
+    @JoinColumn(name = "partida_id")
+    private Partida partida;
+
+
     @Column(name = "partidas_jugadas", nullable = false)
     private int partidasJugadas = 0;
 
@@ -51,8 +58,9 @@ public class Jugador {
     }
 
     public void incrementarPartidasJugadas() {
-        this.partidasJugadas++;
+        this.partidasJugadas = Math.max(0, this.partidasJugadas + 1);
     }
+
 
     public void incrementarPartidasGanadas() {
         this.partidasGanadas++;
