@@ -20,6 +20,7 @@ public record RegistrarDto(
         String password,
 
         @NotBlank(message = "La verificación de contraseña es requerida")
-        String verificacionPassword) {
-}
+        String verificacionPassword
+) {}
+
 
