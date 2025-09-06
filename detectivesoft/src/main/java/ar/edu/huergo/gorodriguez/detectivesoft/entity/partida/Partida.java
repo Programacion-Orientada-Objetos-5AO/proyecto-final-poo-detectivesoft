@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,7 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,11 +41,16 @@ public class Partida {
     @Column(nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+        name = "partida_jugadores",
+        joinColumns = @JoinColumn(name = "partida_id"),
+        inverseJoinColumns = @JoinColumn(name = "jugador_id")
+    )
     private List<Jugador> jugadores = new ArrayList<>();
 
     @Column(nullable = false)
-    private int maxJugadores = 6; // valor por defecto
+    private int maxJugadores = 6;
 
     @Column(nullable = false)
     private int recuentoJugadores = 0;
