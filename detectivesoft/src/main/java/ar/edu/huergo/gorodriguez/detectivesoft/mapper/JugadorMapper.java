@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.RegistrarDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.JugadorDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.jugador.JugadorDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.Jugador;
 
 @Component

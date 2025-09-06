@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.RegistrarDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.JugadorDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.jugador.JugadorDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.JugadorMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.service.JugadorService;

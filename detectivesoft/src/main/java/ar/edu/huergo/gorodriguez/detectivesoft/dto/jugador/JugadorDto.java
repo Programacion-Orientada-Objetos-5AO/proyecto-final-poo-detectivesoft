@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.dto;
+package ar.edu.huergo.gorodriguez.detectivesoft.dto.jugador;
 
 import lombok.Data; 
 import lombok.NoArgsConstructor; 
