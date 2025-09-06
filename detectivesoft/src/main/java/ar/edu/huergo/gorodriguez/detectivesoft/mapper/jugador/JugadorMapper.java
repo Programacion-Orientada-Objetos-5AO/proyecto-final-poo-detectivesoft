@@ -1,12 +1,12 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.mapper;
+package ar.edu.huergo.gorodriguez.detectivesoft.mapper.jugador;
 
 import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.RegistrarDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.jugador.JugadorDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.Jugador;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.RegistrarDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 
 @Component
 public class JugadorMapper {

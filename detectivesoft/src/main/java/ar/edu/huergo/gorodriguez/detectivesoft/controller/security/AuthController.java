@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.controller;
+package ar.edu.huergo.gorodriguez.detectivesoft.controller.security;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.LoginDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.LoginDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.service.security.JwtTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

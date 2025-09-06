@@ -1,12 +1,12 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.service;
+package ar.edu.huergo.gorodriguez.detectivesoft.service.jugador;
 
 import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.Jugador;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.JugadorRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.JugadorRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 
 @Configuration
 @EnableMethodSecurity

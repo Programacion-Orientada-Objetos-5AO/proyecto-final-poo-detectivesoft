@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.dto;
+package ar.edu.huergo.gorodriguez.detectivesoft.dto.partida;
 
 import java.time.LocalDateTime;
 import java.util.List;

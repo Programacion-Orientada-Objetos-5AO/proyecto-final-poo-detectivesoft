@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.dto;
+package ar.edu.huergo.gorodriguez.detectivesoft.dto.security;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

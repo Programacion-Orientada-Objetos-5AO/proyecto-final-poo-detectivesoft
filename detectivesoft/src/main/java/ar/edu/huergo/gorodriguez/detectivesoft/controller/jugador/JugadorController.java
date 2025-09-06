@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.controller;
+package ar.edu.huergo.gorodriguez.detectivesoft.controller.jugador;
 
 import java.util.List;
 
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.RegistrarDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.jugador.JugadorDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.Jugador;
-import ar.edu.huergo.gorodriguez.detectivesoft.mapper.JugadorMapper;
-import ar.edu.huergo.gorodriguez.detectivesoft.service.JugadorService;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.RegistrarDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
+import ar.edu.huergo.gorodriguez.detectivesoft.mapper.jugador.JugadorMapper;
+import ar.edu.huergo.gorodriguez.detectivesoft.service.jugador.JugadorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 

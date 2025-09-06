@@ -1,9 +1,10 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.entity;
+package ar.edu.huergo.gorodriguez.detectivesoft.entity.partida;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
