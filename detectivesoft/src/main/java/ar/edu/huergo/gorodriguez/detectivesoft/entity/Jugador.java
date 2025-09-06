@@ -42,7 +42,6 @@ public class Jugador {
     @JoinColumn(name = "partida_id")
     private Partida partida;
 
-
     @Column(name = "partidas_jugadas", nullable = false)
     private int partidasJugadas = 0;
 
@@ -60,7 +59,6 @@ public class Jugador {
     public void incrementarPartidasJugadas() {
         this.partidasJugadas = Math.max(0, this.partidasJugadas + 1);
     }
-
 
     public void incrementarPartidasGanadas() {
         this.partidasGanadas++;

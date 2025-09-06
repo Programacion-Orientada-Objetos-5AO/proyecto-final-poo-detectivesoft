@@ -90,14 +90,15 @@ public class SecurityConfig {
 
     @Bean
     UserDetailsService userDetailsService(JugadorRepository jugadorRepository) {
-        return username -> jugadorRepository.findByUsername(username)
+        return email -> jugadorRepository.findByEmail(email)
                 .map(jugador -> org.springframework.security.core.userdetails.User
-                        .withUsername(jugador.getUsername())
+                        .withUsername(jugador.getEmail())
                         .password(jugador.getPassword())
-                        .roles("USER") // todos los jugadores tienen rol USER por defecto
+                        .roles("USER")
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("Jugador no encontrado: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Jugador no encontrado con email: " + email));
     }
+
 
     @Bean
     DaoAuthenticationProvider daoAuthenticationProvider(UserDetailsService userDetailsService,

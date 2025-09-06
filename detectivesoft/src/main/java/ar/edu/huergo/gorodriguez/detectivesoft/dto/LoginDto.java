@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record LoginDto(
-        @NotBlank(message = "El nombre de usuario es requerido")
-        @Email(message = "El nombre de usuario debe ser un email válido") 
-        String username,
+        @NotBlank(message = "El email es requerido")
+        @Email(message = "Debe ser un email válido") 
+        String email,
 
         @NotBlank(message = "La contraseña es requerida") 
         @Pattern(

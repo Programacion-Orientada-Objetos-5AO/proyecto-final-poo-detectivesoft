@@ -26,20 +26,25 @@ public class AuthController {
     private final JwtTokenService jwtTokenService;
     private final UserDetailsService userDetailsService;
 
-
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody @Valid LoginDto request) {
-        // 1) Autenticar credenciales username/password (lanza excepción si no son válidas)
+        // 1) Autenticar credenciales con email/password
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
-        // 2) Cargar UserDetails y derivar roles/authorities
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
-        List<String> roles =
-                userDetails.getAuthorities().stream().map(a -> a.getAuthority()).toList();
-        // 3) Generar token JWT firmado con el username como subject y los roles como claims
+        // 2) Cargar UserDetails usando el email
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
+
+        // 3) Extraer roles
+        List<String> roles = userDetails.getAuthorities()
+                                        .stream()
+                                        .map(a -> a.getAuthority())
+                                        .toList();
+
+        // 4) Generar token con el email como subject
         String token = jwtTokenService.generarToken(userDetails, roles);
-        // 4) Responder con el token (el cliente deberá enviarlo en el header Authorization)
+
+        // 5) Devolver token
         return ResponseEntity.ok(Map.of("token", token));
     }
 }
