@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.MensajeDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.service.partida.PartidaService;
 import lombok.RequiredArgsConstructor;
 
@@ -24,23 +25,29 @@ public class PartidaController {
 
     // Crear partida
     @PostMapping("/crear/{creadorId}")
-    public ResponseEntity<PartidaDto> crearPartida(@PathVariable Long creadorId) {
+    public ResponseEntity<MensajeDto> crearPartida(@PathVariable Long creadorId) {
+        partidaService.crearPartida(creadorId);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(partidaService.crearPartida(creadorId));
+                .body(new MensajeDto("Partida creada correctamente."));
     }
 
     // Unirse a partida
     @PostMapping("/unirse/{codigo}/{jugadorId}")
-    public ResponseEntity<PartidaDto> unirseAPartida(
+    public ResponseEntity<MensajeDto> unirseAPartida(
             @PathVariable String codigo,
             @PathVariable Long jugadorId) {
-        return ResponseEntity.ok(partidaService.unirseAPartida(codigo, jugadorId));
+        partidaService.unirseAPartida(codigo, jugadorId);
+        return ResponseEntity.ok(new MensajeDto("Te uniste correctamente a la partida."));
     }
 
     // Listar partidas
     @GetMapping
-    public ResponseEntity<List<PartidaDto>> listarPartidas() {
-        return ResponseEntity.ok(partidaService.listarPartidas());
+    public ResponseEntity<?> listarPartidas() {
+        List<PartidaDto> partidas = partidaService.listarPartidas();
+        if (partidas.isEmpty()) {
+            return ResponseEntity.ok(new MensajeDto("No hay partidas disponibles."));
+        }
+        return ResponseEntity.ok(partidas);
     }
 
     // Obtener partida por ID
@@ -51,16 +58,17 @@ public class PartidaController {
 
     // Eliminar partida por ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarPartida(@PathVariable Long id) {
+    public ResponseEntity<MensajeDto> eliminarPartida(@PathVariable Long id) {
         partidaService.eliminarPartida(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MensajeDto("Partida eliminada correctamente."));
     }
 
     // Eliminar jugador de una partida
     @DeleteMapping("/{partidaId}/jugadores/{jugadorId}")
-    public ResponseEntity<PartidaDto> eliminarJugadorDePartida(
+    public ResponseEntity<MensajeDto> eliminarJugadorDePartida(
             @PathVariable Long partidaId,
             @PathVariable Long jugadorId) {
-        return ResponseEntity.ok(partidaService.eliminarJugadorDePartida(partidaId, jugadorId));
+        partidaService.eliminarJugadorDePartida(partidaId, jugadorId);
+        return ResponseEntity.ok(new MensajeDto("Jugador eliminado correctamente de la partida."));
     }
 }
