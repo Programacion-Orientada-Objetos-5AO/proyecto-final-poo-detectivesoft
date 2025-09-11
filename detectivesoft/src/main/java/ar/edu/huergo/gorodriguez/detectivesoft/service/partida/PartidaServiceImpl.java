@@ -2,6 +2,7 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.partida;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida.EstadoPart
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.partida.PartidaMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,14 +27,14 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public PartidaDto crearPartida(Long creadorId) {
         Jugador creador = jugadorRepository.findById(creadorId)
-                .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
 
         Partida partida = new Partida();
         partida.setCodigo(generarCodigoUnico());
         partida.setEstado(EstadoPartida.PENDIENTE);
         partida.setFechaCreacion(LocalDateTime.now());
         partida.setMaxJugadores(6);
-        partida.getJugadores().add(creador);
+        partida.agregarJugador(creador);
 
         return partidaMapper.toDto(partidaRepository.save(partida));
     }
@@ -40,16 +42,15 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public PartidaDto unirseAPartida(String codigo, Long jugadorId) {
         Partida partida = partidaRepository.findByCodigo(codigo)
-                .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
 
         Jugador jugador = jugadorRepository.findById(jugadorId)
-                .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
 
-        if (partida.getJugadores().size() >= partida.getMaxJugadores()) {
-            throw new RuntimeException("La partida ya está llena");
+        if (partida.getJugadores().contains(jugador)) {
+            throw new IllegalStateException("El jugador ya está en la partida");
         }
-
-        partida.getJugadores().add(jugador);
+        partida.agregarJugador(jugador);
 
         return partidaMapper.toDto(partidaRepository.save(partida));
     }
@@ -65,20 +66,14 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public PartidaDto obtenerPartidaPorId(Long id) {
         Partida partida = partidaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
-
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
         return partidaMapper.toDto(partida);
-    }
-
-    private String generarCodigoUnico() {
-        return Long.toHexString(System.currentTimeMillis()).substring(6).toUpperCase();
     }
 
     @Override
     public void eliminarPartida(Long partidaId) {
         Partida partida = partidaRepository.findById(partidaId)
-                .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
-
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
         partida.getJugadores().clear();
         partidaRepository.delete(partida);
     }
@@ -86,18 +81,31 @@ public class PartidaServiceImpl implements PartidaService {
     @Override
     public PartidaDto eliminarJugadorDePartida(Long partidaId, Long jugadorId) {
         Partida partida = partidaRepository.findById(partidaId)
-                .orElseThrow(() -> new RuntimeException("Partida no encontrada"));
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
 
         Jugador jugador = jugadorRepository.findById(jugadorId)
-                .orElseThrow(() -> new RuntimeException("Jugador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
 
-        // Remueve jugador de la lista
-        partida.getJugadores().remove(jugador);
+        partida.removerJugador(jugador);
 
-        // Guardar cambios
-        Partida actualizada = partidaRepository.save(partida);
-
-        return partidaMapper.toDto(actualizada);
+        return partidaMapper.toDto(partidaRepository.save(partida));
     }
 
+    public List<PartidaDto> listarPartidasPorEstado(EstadoPartida estado) {
+        return partidaRepository.findByEstado(estado.name())
+                .stream()
+                .map(partidaMapper::toDto)
+                .toList();
+    }
+
+    public PartidaDto actualizarEstadoPartida(Long partidaId, EstadoPartida nuevoEstado) {
+        Partida partida = partidaRepository.findById(partidaId)
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
+        partida.setEstado(nuevoEstado);
+        return partidaMapper.toDto(partidaRepository.save(partida));
+    }
+
+    private String generarCodigoUnico() {
+        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
 }
