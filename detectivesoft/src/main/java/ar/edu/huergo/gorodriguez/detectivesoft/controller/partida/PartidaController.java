@@ -1,0 +1,74 @@
+package ar.edu.huergo.gorodriguez.detectivesoft.controller.partida;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.MensajeDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.service.partida.PartidaService;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/partidas")
+public class PartidaController {
+
+    private final PartidaService partidaService;
+
+    // Crear partida
+    @PostMapping("/crear/{creadorId}")
+    public ResponseEntity<MensajeDto> crearPartida(@PathVariable Long creadorId) {
+        partidaService.crearPartida(creadorId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MensajeDto("Partida creada correctamente."));
+    }
+
+    // Unirse a partida
+    @PostMapping("/unirse/{codigo}/{jugadorId}")
+    public ResponseEntity<MensajeDto> unirseAPartida(
+            @PathVariable String codigo,
+            @PathVariable Long jugadorId) {
+        partidaService.unirseAPartida(codigo, jugadorId);
+        return ResponseEntity.ok(new MensajeDto("Te uniste correctamente a la partida."));
+    }
+
+    // Listar partidas
+    @GetMapping
+    public ResponseEntity<?> listarPartidas() {
+        List<PartidaDto> partidas = partidaService.listarPartidas();
+        if (partidas.isEmpty()) {
+            return ResponseEntity.ok(new MensajeDto("No hay partidas disponibles."));
+        }
+        return ResponseEntity.ok(partidas);
+    }
+
+    // Obtener partida por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<PartidaDto> obtenerPartidaPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(partidaService.obtenerPartidaPorId(id));
+    }
+
+    // Eliminar partida por ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<MensajeDto> eliminarPartida(@PathVariable Long id) {
+        partidaService.eliminarPartida(id);
+        return ResponseEntity.ok(new MensajeDto("Partida eliminada correctamente."));
+    }
+
+    // Eliminar jugador de una partida
+    @DeleteMapping("/{partidaId}/jugadores/{jugadorId}")
+    public ResponseEntity<MensajeDto> eliminarJugadorDePartida(
+            @PathVariable Long partidaId,
+            @PathVariable Long jugadorId) {
+        partidaService.eliminarJugadorDePartida(partidaId, jugadorId);
+        return ResponseEntity.ok(new MensajeDto("Jugador eliminado correctamente de la partida."));
+    }
+}
