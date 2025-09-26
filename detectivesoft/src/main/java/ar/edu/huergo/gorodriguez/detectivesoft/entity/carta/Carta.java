@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.entity.cartas;
+package ar.edu.huergo.gorodriguez.detectivesoft.entity.carta;
 
 import jakarta.persistence.Column; 
 import jakarta.persistence.Entity;
@@ -27,24 +27,22 @@ public class Carta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String nombre;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     private TipoCarta tipo;
-
-    @ManyToOne
-    @JoinColumn(name = "partida_id", nullable = false)
-    private Partida partida;
 
     @ManyToOne
     @JoinColumn(name = "jugador_id")
     private Jugador jugador;
 
+    @ManyToOne
+    @JoinColumn(name = "partida_id", nullable = false)
+    private Partida partida;
+
     public enum TipoCarta {
-        PERSONAJE,
-        ARMA,
-        HABITACION
+        PERSONAJE, ARMA, HABITACION
     }
 }
