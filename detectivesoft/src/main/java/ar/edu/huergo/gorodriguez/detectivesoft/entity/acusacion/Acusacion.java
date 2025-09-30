@@ -1,7 +1,8 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.entity.turno;
+package ar.edu.huergo.gorodriguez.detectivesoft.entity.acusacion;
 
 import java.time.LocalDateTime;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import jakarta.persistence.Column;
@@ -20,37 +21,36 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "turnos")
-public class Turno {
+@Table(name = "acusaciones")
+public class Acusacion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación: la partida a la que pertenece el turno
     @ManyToOne
     @JoinColumn(name = "partida_id", nullable = false)
     private Partida partida;
 
-    // Relación: el jugador al que le corresponde este turno
     @ManyToOne
     @JoinColumn(name = "jugador_id", nullable = false)
     private Jugador jugador;
 
-    @Column(nullable = false)
-    private int numeroTurno; // número secuencial del turno dentro de la partida
+    @ManyToOne
+    @JoinColumn(name = "personaje_id", nullable = false)
+    private Carta personaje;
+
+    @ManyToOne
+    @JoinColumn(name = "arma_id", nullable = false)
+    private Carta arma;
+
+    @ManyToOne
+    @JoinColumn(name = "habitacion_id", nullable = false)
+    private Carta habitacion;
 
     @Column(nullable = false)
-    private boolean activo = false; // indica si el turno está en curso
+    private LocalDateTime fecha = LocalDateTime.now();
 
     @Column(nullable = false)
-    private LocalDateTime fechaInicio = LocalDateTime.now();
-
-    private LocalDateTime fechaFin;
-
-    // Método para finalizar el turno
-    public void finalizarTurno() {
-        this.activo = false;
-        this.fechaFin = LocalDateTime.now();
-    }
+    private Boolean correcta = false;
 }
