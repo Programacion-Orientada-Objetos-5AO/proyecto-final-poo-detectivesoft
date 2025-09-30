@@ -65,7 +65,7 @@ public class TurnoServiceImpl implements TurnoService {
     public List<TurnoDto> obtenerTurnosPorJugador(Long jugadorId) {
         Jugador jugador = jugadorRepository.findById(jugadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
-        return turnoMapper.toDtoList(turnoRepository.findByJugadorId(jugador));
+        return turnoMapper.toDtoList(turnoRepository.findByJugador(jugador));
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.turno.TurnoDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.MensajeDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.service.turno.TurnoService;
 import lombok.RequiredArgsConstructor;
 
@@ -17,23 +18,44 @@ public class TurnoController {
 
     private final TurnoService turnoService;
 
-    // Obtener todos los turnos
-    @GetMapping
-    public ResponseEntity<List<TurnoDto>> obtenerTodos() {
-        return ResponseEntity.ok(turnoService.obtenerTodosLosTurnos());
+    // Crear turno
+    @PostMapping("/crear/{partidaId}/{jugadorId}/{numeroTurno}")
+    public ResponseEntity<TurnoDto> crearTurno(
+            @PathVariable Long partidaId,
+            @PathVariable Long jugadorId,
+            @PathVariable int numeroTurno) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(turnoService.crearTurno(partidaId, jugadorId, numeroTurno));
     }
 
     // Obtener turno por ID
     @GetMapping("/{id}")
-    public ResponseEntity<TurnoDto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<TurnoDto> obtenerTurnoPorId(@PathVariable Long id) {
         return ResponseEntity.ok(turnoService.obtenerTurnoPorId(id));
     }
 
-    // Crear un turno
-    @PostMapping
-    public ResponseEntity<TurnoDto> crearTurno(@RequestBody TurnoDto turnoDto) {
-        TurnoDto nuevo = turnoService.crearTurno(turnoDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevo);
+    // Listar todos los turnos
+    @GetMapping
+    public ResponseEntity<List<TurnoDto>> obtenerTodosLosTurnos() {
+        return ResponseEntity.ok(turnoService.obtenerTodosLosTurnos());
+    }
+
+    // Listar turnos de una partida
+    @GetMapping("/partida/{partidaId}")
+    public ResponseEntity<List<TurnoDto>> obtenerTurnosPorPartida(@PathVariable Long partidaId) {
+        return ResponseEntity.ok(turnoService.obtenerTurnosPorPartida(partidaId));
+    }
+
+    // Listar turnos de un jugador
+    @GetMapping("/jugador/{jugadorId}")
+    public ResponseEntity<List<TurnoDto>> obtenerTurnosPorJugador(@PathVariable Long jugadorId) {
+        return ResponseEntity.ok(turnoService.obtenerTurnosPorJugador(jugadorId));
+    }
+
+    // Finalizar turno
+    @PostMapping("/finalizar/{turnoId}")
+    public ResponseEntity<TurnoDto> finalizarTurno(@PathVariable Long turnoId) {
+        return ResponseEntity.ok(turnoService.finalizarTurno(turnoId));
     }
 
     // Actualizar turno
@@ -46,8 +68,8 @@ public class TurnoController {
 
     // Eliminar turno
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarTurno(@PathVariable Long id) {
+    public ResponseEntity<MensajeDto> eliminarTurno(@PathVariable Long id) {
         turnoService.eliminarTurno(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new MensajeDto("Turno eliminado correctamente."));
     }
 }
