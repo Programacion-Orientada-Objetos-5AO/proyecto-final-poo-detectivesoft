@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,22 +31,27 @@ public class Acusacion {
 
     @ManyToOne
     @JoinColumn(name = "partida_id", nullable = false)
+    @NotNull
     private Partida partida;
 
     @ManyToOne
     @JoinColumn(name = "jugador_id", nullable = false)
+    @NotNull
     private Jugador jugador;
 
     @ManyToOne
     @JoinColumn(name = "personaje_id", nullable = false)
+    @NotNull
     private Carta personaje;
 
     @ManyToOne
     @JoinColumn(name = "arma_id", nullable = false)
+    @NotNull
     private Carta arma;
 
     @ManyToOne
     @JoinColumn(name = "habitacion_id", nullable = false)
+    @NotNull
     private Carta habitacion;
 
     @Column(nullable = false)

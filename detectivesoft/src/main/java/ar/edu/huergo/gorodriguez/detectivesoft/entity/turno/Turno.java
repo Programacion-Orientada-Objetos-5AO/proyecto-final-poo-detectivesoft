@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,11 +31,13 @@ public class Turno {
     // Relación: la partida a la que pertenece el turno
     @ManyToOne
     @JoinColumn(name = "partida_id", nullable = false)
+    @NotNull
     private Partida partida;
 
     // Relación: el jugador al que le corresponde este turno
     @ManyToOne
     @JoinColumn(name = "jugador_id", nullable = false)
+    @NotNull
     private Jugador jugador;
 
     @Column(nullable = false)

@@ -30,10 +30,12 @@ public class Carta {
     private Long id;
 
     @Column(nullable = false, length = 100)
+    @NotBlank
     private String nombre;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @NotNull
     private TipoCarta tipo;
 
     @ManyToOne
