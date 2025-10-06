@@ -21,35 +21,35 @@ public class CartaInitializer {
 
                 // PERSONAJES
                 List<Carta> personajes = List.of(
-                        new Carta(null, "Jack Brader", TipoCarta.PERSONAJE, "jack_brader.png", null, null),
-                        new Carta(null, "Alice Nurse", TipoCarta.PERSONAJE, "alice_nurse.png", null, null),
-                        new Carta(null, "Calvin Schwager", TipoCarta.PERSONAJE, "calvin_schwager.png", null, null),
-                        new Carta(null, "Alfred Butler", TipoCarta.PERSONAJE, "alfred_butler.png", null, null),
-                        new Carta(null, "Sofia Wife", TipoCarta.PERSONAJE, "sofia_wife.png", null, null),
-                        new Carta(null, "Alba Daughter", TipoCarta.PERSONAJE, "alba_daughter.png", null, null)
+                        new Carta(null, "Señorita Scarlet", TipoCarta.PERSONAJE, "señorita_scarlet.png", null, null),
+                        new Carta(null, "Coronel Mustard", TipoCarta.PERSONAJE, "coronel_mustard.png", null, null),
+                        new Carta(null, "Profesor Plum", TipoCarta.PERSONAJE, "profesor_plum.png", null, null),
+                        new Carta(null, "Señora Peacock", TipoCarta.PERSONAJE, "señora_peacock.png", null, null),
+                        new Carta(null, "Señor Green", TipoCarta.PERSONAJE, "señor_green.png", null, null),
+                        new Carta(null, "Señora White", TipoCarta.PERSONAJE, "señora_white.png", null, null)
                 );
 
                 // ARMAS
                 List<Carta> armas = List.of(
-                        new Carta(null, "Martillo", TipoCarta.ARMA, "martillo.png", null, null),
-                        new Carta(null, "Veneno", TipoCarta.ARMA, "veneno.png", null, null),
+                        new Carta(null, "Candelabro", TipoCarta.ARMA, "candelabro.png", null, null),
+                        new Carta(null, "Cuchillo", TipoCarta.ARMA, "cuchillo.png", null, null),
+                        new Carta(null, "Tuberia de Plomo", TipoCarta.ARMA, "tuberia.png", null, null),
                         new Carta(null, "Pistola", TipoCarta.ARMA, "pistola.png", null, null),
                         new Carta(null, "Cuerda", TipoCarta.ARMA, "cuerda.png", null, null),
-                        new Carta(null, "Hacha", TipoCarta.ARMA, "hacha.png", null, null),
-                        new Carta(null, "Cuchillo", TipoCarta.ARMA, "cuchillo.png", null, null)
+                        new Carta(null, "Llave Inglesa", TipoCarta.ARMA, "llave.png", null, null)
                 );
 
                 // HABITACIONES
                 List<Carta> habitaciones = List.of(
-                        new Carta(null, "Estudio", TipoCarta.HABITACION, "estudio.png", null, null),
-                        new Carta(null, "Entrada", TipoCarta.HABITACION, "entrada.png", null, null),
-                        new Carta(null, "Comedor", TipoCarta.HABITACION, "comedor.png", null, null),
-                        new Carta(null, "Sala de Estar", TipoCarta.HABITACION, "sala_estar.png", null, null),
-                        new Carta(null, "Cuarto Individual", TipoCarta.HABITACION, "cuarto_individual.png", null, null),
-                        new Carta(null, "Cuarto Matrimonial", TipoCarta.HABITACION, "cuarto_matrimonial.png", null, null),
-                        new Carta(null, "Baño", TipoCarta.HABITACION, "bano.png", null, null),
-                        new Carta(null, "Cocina", TipoCarta.HABITACION, "cocina.png", null, null),
-                        new Carta(null, "Garaje", TipoCarta.HABITACION, "garaje.png", null, null)
+                        new Carta(null, "Cocina", TipoCarta.HABITACION, "estudio.png", null, null),
+                        new Carta(null, "Comedor", TipoCarta.HABITACION, "entrada.png", null, null),
+                        new Carta(null, "Biblioteca", TipoCarta.HABITACION, "comedor.png", null, null),
+                        new Carta(null, "Sala de Baile", TipoCarta.HABITACION, "sala_estar.png", null, null),
+                        new Carta(null, "Salon", TipoCarta.HABITACION, "cuarto_individual.png", null, null),
+                        new Carta(null, "Invernadero", TipoCarta.HABITACION, "cuarto_matrimonial.png", null, null),
+                        new Carta(null, "Estudio", TipoCarta.HABITACION, "bano.png", null, null),
+                        new Carta(null, "Billar", TipoCarta.HABITACION, "cocina.png", null, null),
+                        new Carta(null, "Vestibulo", TipoCarta.HABITACION, "garaje.png", null, null)
                 );
 
                 cartaRepository.saveAll(personajes);
