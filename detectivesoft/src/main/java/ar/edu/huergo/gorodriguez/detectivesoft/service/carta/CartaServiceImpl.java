@@ -20,6 +20,7 @@ public class CartaServiceImpl implements CartaService {
     @Override
     public CartaDto crearCarta(CartaDto dto) {
         Carta carta = cartaMapper.toEntity(dto);
+        carta.setImagen(dto.getImagen());
         return cartaMapper.toDto(cartaRepository.save(carta));
     }
 
@@ -56,6 +57,8 @@ public class CartaServiceImpl implements CartaService {
                 .orElseThrow(() -> new EntityNotFoundException("Carta con id " + id + " no encontrada"));
 
         carta.setNombre(dto.getNombre());
+        carta.setImagen(dto.getImagen());
+
         try {
             carta.setTipo(Carta.TipoCarta.valueOf(dto.getTipo()));
         } catch (IllegalArgumentException e) {
