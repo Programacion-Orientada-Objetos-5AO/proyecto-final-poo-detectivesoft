@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.entity;
+package ar.edu.huergo.gorodriguez.detectivesoft.entity.acusacion;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

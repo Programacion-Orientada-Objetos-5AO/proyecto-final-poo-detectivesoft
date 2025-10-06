@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.entity;
+package ar.edu.huergo.gorodriguez.detectivesoft.entity.carta;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -2,8 +2,6 @@ package ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.NotNull;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

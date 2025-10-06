@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.repository;
+package ar.edu.huergo.gorodriguez.detectivesoft.repository.partida;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

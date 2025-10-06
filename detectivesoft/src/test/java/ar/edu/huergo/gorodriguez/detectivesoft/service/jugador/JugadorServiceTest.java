@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.service;
+package ar.edu.huergo.gorodriguez.detectivesoft.service.jugador;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
