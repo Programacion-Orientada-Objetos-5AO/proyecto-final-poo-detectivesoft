@@ -7,13 +7,17 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida.EstadoPartida;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.partida.PartidaMapper;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,6 +26,7 @@ public class PartidaServiceImpl implements PartidaService {
 
     private final PartidaRepository partidaRepository;
     private final JugadorRepository jugadorRepository;
+    private final CartaRepository cartaRepository;
     private final PartidaMapper partidaMapper;
 
     @Override
@@ -108,4 +113,57 @@ public class PartidaServiceImpl implements PartidaService {
     private String generarCodigoUnico() {
         return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
+
+    @Override
+    public PartidaDto iniciarPartida(Long partidaId) {
+        Partida partida = partidaRepository.findById(partidaId)
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
+
+        if (partida.getJugadores().size() < 2) {
+            throw new IllegalStateException("Debe haber al menos 2 jugadores para iniciar la partida");
+        }
+
+        // Cambiar estado de la partida a EN_CURSO
+        partida.setEstado(EstadoPartida.EN_CURSO);
+
+        // Obtener todas las cartas disponibles
+        List<Carta> cartas = cartaRepository.findAll();
+
+        if (cartas.isEmpty()) {
+            throw new IllegalStateException("No hay cartas disponibles para repartir");
+        }
+
+        // Mezclar las cartas
+        Collections.shuffle(cartas);
+
+        // Repartir cartas entre los jugadores
+        int numJugadores = partida.getJugadores().size();
+        int index = 0;
+        for (Carta carta : cartas) {
+            Jugador jugador = partida.getJugadores().get(index % numJugadores);
+            jugador.getCartas().add(carta);
+            index++;
+        }
+
+        // Seleccionar el jugador inicial (por ejemplo, el primero en la lista)
+        Jugador jugadorInicial = partida.getJugadores().get(0);
+
+        // Crear el primer turno
+        Turno primerTurno = new Turno();
+        primerTurno.setPartida(partida);
+        primerTurno.setJugador(jugadorInicial);
+        primerTurno.setNumeroTurno(1);
+        primerTurno.setActivo(true);
+        primerTurno.setFechaInicio(LocalDateTime.now());
+
+        partida.getTurnos().add(primerTurno);
+        partida.setTurnoActual(primerTurno);
+
+        partidaRepository.save(partida);
+
+        return partidaMapper.toDto(partida);
+    }
+
+
+    
 }

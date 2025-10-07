@@ -2,6 +2,10 @@ package ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.ArrayList;
+
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,10 +14,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import java.util.List;
+import jakarta.persistence.CascadeType;
 
 @Entity
 @Data
@@ -64,4 +71,7 @@ public class Jugador {
     public void incrementarPartidasGanadas() {
         this.partidasGanadas++;
     }
+
+    @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL)
+    private List<Carta> cartas = new ArrayList<>();
 }

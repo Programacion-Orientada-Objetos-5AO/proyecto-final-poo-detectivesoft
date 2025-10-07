@@ -11,6 +11,9 @@ public interface PartidaService {
     // Un jugador se une a una partida
     PartidaDto unirseAPartida(String codigo, Long jugadorId);
 
+    // Iniciar una partida
+    PartidaDto iniciarPartida(Long partidaId);
+
     // Listar todas las partidas
     List<PartidaDto> listarPartidas();
 

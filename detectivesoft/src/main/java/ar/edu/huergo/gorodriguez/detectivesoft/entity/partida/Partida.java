@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,10 +16,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.CascadeType;
 
 @Entity
 @Data
@@ -76,4 +80,12 @@ public class Partida {
         EN_CURSO,
         FINALIZADA
     }
+
+    @OneToMany(mappedBy = "partida", cascade = CascadeType.ALL)
+    private List<Turno> turnos = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn(name = "turno_actual_id")
+    private Turno turnoActual;
+
 } 

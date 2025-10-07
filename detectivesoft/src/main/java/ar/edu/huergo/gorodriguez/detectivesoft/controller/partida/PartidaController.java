@@ -71,4 +71,12 @@ public class PartidaController {
         partidaService.eliminarJugadorDePartida(partidaId, jugadorId);
         return ResponseEntity.ok(new MensajeDto("Jugador eliminado correctamente de la partida."));
     }
+
+    // Iniciar partida
+    @PostMapping("/{id}/iniciar")
+    public ResponseEntity<MensajeDto> iniciarPartida(@PathVariable Long id) {
+        partidaService.iniciarPartida(id);
+        return ResponseEntity.ok(new MensajeDto("Partida iniciada y cartas repartidas correctamente."));
+    }
+
 }
