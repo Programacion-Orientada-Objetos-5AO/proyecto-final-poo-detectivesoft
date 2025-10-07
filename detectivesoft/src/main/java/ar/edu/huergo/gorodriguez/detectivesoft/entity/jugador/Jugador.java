@@ -27,6 +27,7 @@ import jakarta.persistence.CascadeType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "jugadores")
+@builder
 public class Jugador {
 
     @Id
