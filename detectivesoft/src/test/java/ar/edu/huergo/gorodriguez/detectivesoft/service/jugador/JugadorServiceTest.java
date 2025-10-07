@@ -21,7 +21,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
-import ar.edu.huergo.gorodriguez.detectivesoft.service.jugador.JugadorService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests de Unidad - JugadorService")
@@ -40,7 +39,12 @@ class JugadorServiceTest {
 
     @BeforeEach
     void setUp() {
-        jugadorEjemplo = new Jugador(1L, "test@test.com", "usuarioTest", "1234", null, 0, 0);
+        Jugador jugador = new Jugador("test@mail.com", "userTest", "1234");
+        jugador.setId(1L);
+        jugador.setPartida(null);
+        jugador.setPartidasJugadas(0);
+        jugador.setPartidasGanadas(0);
+
     }
 
     @Test
@@ -107,7 +111,11 @@ class JugadorServiceTest {
     @Test
     @DisplayName("Debería actualizar jugador correctamente")
     void deberiaActualizarJugador() {
-        Jugador actualizado = new Jugador(1L, "nuevo@test.com", "nuevoUser", "nuevaPass", null, 0, 0);
+        Jugador actualizado = new Jugador("test@mail.com", "userTest", "1234");
+        actualizado.setId(1L);
+        actualizado.setPartida(null);
+        actualizado.setPartidasJugadas(0);
+        actualizado.setPartidasGanadas(0);
 
         when(jugadorRepository.findById(1L)).thenReturn(Optional.of(jugadorEjemplo));
         when(passwordEncoder.encode("nuevaPass")).thenReturn("encodedNuevaPass");

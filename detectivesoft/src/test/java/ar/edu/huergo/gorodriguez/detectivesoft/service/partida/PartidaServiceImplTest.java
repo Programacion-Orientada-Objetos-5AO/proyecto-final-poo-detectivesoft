@@ -26,7 +26,6 @@ import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida.EstadoPart
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.partida.PartidaMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
-import ar.edu.huergo.gorodriguez.detectivesoft.service.partida.PartidaServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests de Unidad - PartidaServiceImpl")
@@ -50,7 +49,11 @@ class PartidaServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        jugador = new Jugador(1L, "mail@test.com", "Jugador1", "1234", null, 0, 0);
+        Jugador jugador = new Jugador("test@mail.com", "userTest", "1234");
+        jugador.setId(1L);
+        jugador.setPartida(null);
+        jugador.setPartidasJugadas(0);
+        jugador.setPartidasGanadas(0);
         partida = new Partida();
         partida.setId(1L);
         partida.setCodigo("ABC123");
@@ -91,7 +94,12 @@ class PartidaServiceImplTest {
     @Test
     @DisplayName("Debería unirse a partida correctamente")
     void deberiaUnirseAPartida() {
-        Jugador nuevo = new Jugador(2L, "otro@test.com", "Jugador2", "pass", null, 0, 0);
+        Jugador nuevo = new Jugador("test@mail.com", "userTest", "1234");
+        nuevo.setId(1L);
+        nuevo.setPartida(null);
+        nuevo.setPartidasJugadas(0);
+        nuevo.setPartidasGanadas(0);
+
         when(partidaRepository.findByCodigo("ABC123")).thenReturn(Optional.of(partida));
         when(jugadorRepository.findById(2L)).thenReturn(Optional.of(nuevo));
         when(partidaRepository.save(any(Partida.class))).thenReturn(partida);
@@ -106,7 +114,12 @@ class PartidaServiceImplTest {
     @Test
     @DisplayName("Debería lanzar excepción si la partida está llena")
     void deberiaLanzarExcepcionSiPartidaLlena() {
-        Jugador otro = new Jugador(2L, "lleno@test.com", "Jugador2", "pass", null, 0, 0);
+        Jugador otro = new Jugador("test@mail.com", "userTest", "1234");
+        otro.setId(1L);
+        otro.setPartida(null);
+        otro.setPartidasJugadas(0);
+        otro.setPartidasGanadas(0);
+
         partida.getJugadores().add(otro);
 
         when(partidaRepository.findByCodigo("ABC123")).thenReturn(Optional.of(partida));

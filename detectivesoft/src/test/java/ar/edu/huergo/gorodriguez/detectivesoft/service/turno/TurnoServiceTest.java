@@ -2,6 +2,7 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.turno;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
@@ -59,7 +60,11 @@ class TurnoServiceTest {
         partida.setCodigo("ABC123");
         partida.setEstado(EstadoPartida.EN_CURSO);
 
-        jugador = new Jugador(1L, "test@test.com", "usuarioTest", "1234", null, 0, 0);
+        Jugador jugador = new Jugador("test@mail.com", "userTest", "1234");
+        jugador.setId(1L);
+        jugador.setPartida(null);
+        jugador.setPartidasJugadas(0);
+        jugador.setPartidasGanadas(0);
 
         turno = new Turno();
         turno.setId(1L);
