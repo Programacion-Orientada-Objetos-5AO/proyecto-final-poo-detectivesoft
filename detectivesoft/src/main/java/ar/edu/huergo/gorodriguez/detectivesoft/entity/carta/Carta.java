@@ -37,8 +37,9 @@ public class Carta {
     private Jugador jugador;
 
     @ManyToOne
-    @JoinColumn(name = "partida_id", nullable = false)
+    @JoinColumn(name = "partida_id")
     private Partida partida;
+
 
     public enum TipoCarta {
         PERSONAJE, ARMA, HABITACION

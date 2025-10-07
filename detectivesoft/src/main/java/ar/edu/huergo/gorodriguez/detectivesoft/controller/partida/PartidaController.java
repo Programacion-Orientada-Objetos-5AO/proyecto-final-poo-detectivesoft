@@ -25,11 +25,12 @@ public class PartidaController {
 
     // Crear partida
     @PostMapping("/crear/{creadorId}")
-    public ResponseEntity<MensajeDto> crearPartida(@PathVariable Long creadorId) {
+    public ResponseEntity<MensajeDto> crearPartida(@PathVariable("creadorId") Long creadorId) {
         partidaService.crearPartida(creadorId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MensajeDto("Partida creada correctamente."));
     }
+
 
     // Unirse a partida
     @PostMapping("/unirse/{codigo}/{jugadorId}")
