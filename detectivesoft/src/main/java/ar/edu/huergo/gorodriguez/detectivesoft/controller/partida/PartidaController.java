@@ -25,19 +25,17 @@ public class PartidaController {
 
     // Crear partida
     @PostMapping("/crear/{creadorId}")
-public ResponseEntity<?> crearPartida(@PathVariable("creadorId") Long creadorId) {
-    PartidaDto partida = partidaService.crearPartida(creadorId);
-    return ResponseEntity.status(HttpStatus.CREATED)
-            .body(new MensajeDto("Partida creada correctamente. Código: " + partida.getCodigo()));
-}
-
-
+    public ResponseEntity<?> crearPartida(@PathVariable("creadorId") Long creadorId) {
+        PartidaDto partida = partidaService.crearPartida(creadorId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new MensajeDto("Partida creada correctamente. Código: " + partida.getCodigo()));
+    }
 
     // Unirse a partida
     @PostMapping("/unirse/{codigo}/{jugadorId}")
     public ResponseEntity<MensajeDto> unirseAPartida(
-            @PathVariable String codigo,
-            @PathVariable Long jugadorId) {
+            @PathVariable("codigo") String codigo,
+            @PathVariable("jugadorId") Long jugadorId) {
         partidaService.unirseAPartida(codigo, jugadorId);
         return ResponseEntity.ok(new MensajeDto("Te uniste correctamente a la partida."));
     }
@@ -54,13 +52,13 @@ public ResponseEntity<?> crearPartida(@PathVariable("creadorId") Long creadorId)
 
     // Obtener partida por ID
     @GetMapping("/{id}")
-    public ResponseEntity<PartidaDto> obtenerPartidaPorId(@PathVariable Long id) {
+    public ResponseEntity<PartidaDto> obtenerPartidaPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(partidaService.obtenerPartidaPorId(id));
     }
 
     // Eliminar partida por ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<MensajeDto> eliminarPartida(@PathVariable Long id) {
+    public ResponseEntity<MensajeDto> eliminarPartida(@PathVariable("id") Long id) {
         partidaService.eliminarPartida(id);
         return ResponseEntity.ok(new MensajeDto("Partida eliminada correctamente."));
     }
@@ -68,15 +66,15 @@ public ResponseEntity<?> crearPartida(@PathVariable("creadorId") Long creadorId)
     // Eliminar jugador de una partida
     @DeleteMapping("/{partidaId}/jugadores/{jugadorId}")
     public ResponseEntity<MensajeDto> eliminarJugadorDePartida(
-            @PathVariable Long partidaId,
-            @PathVariable Long jugadorId) {
+            @PathVariable("partidaId") Long partidaId,
+            @PathVariable("jugadorId") Long jugadorId) {
         partidaService.eliminarJugadorDePartida(partidaId, jugadorId);
         return ResponseEntity.ok(new MensajeDto("Jugador eliminado correctamente de la partida."));
     }
 
     // Iniciar partida
     @PostMapping("/{id}/iniciar")
-    public ResponseEntity<MensajeDto> iniciarPartida(@PathVariable Long id) {
+    public ResponseEntity<MensajeDto> iniciarPartida(@PathVariable("id") Long id) {
         partidaService.iniciarPartida(id);
         return ResponseEntity.ok(new MensajeDto("Partida iniciada y cartas repartidas correctamente."));
     }

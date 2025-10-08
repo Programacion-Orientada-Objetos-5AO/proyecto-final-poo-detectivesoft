@@ -22,21 +22,21 @@ public class AnotadorController {
     // Crear un nuevo anotador
     @PostMapping("/crear/{jugadorId}/{partidaId}")
     public ResponseEntity<AnotadorDto> crearAnotador(
-            @PathVariable Long jugadorId,
-            @PathVariable Long partidaId) {
+            @PathVariable("jugadorId") Long jugadorId,
+            @PathVariable("partidaId") Long partidaId) {
         AnotadorDto nuevoAnotador = anotadorService.crearAnotador(jugadorId, partidaId);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoAnotador);
     }
 
     // Obtener un anotador por ID
     @GetMapping("/{id}")
-    public ResponseEntity<AnotadorDto> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<AnotadorDto> obtenerPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(anotadorService.obtenerPorId(id));
     }
 
     // Listar anotadores por partida
     @GetMapping("/partida/{partidaId}")
-    public ResponseEntity<List<AnotadorDto>> listarPorPartida(@PathVariable Long partidaId) {
+    public ResponseEntity<List<AnotadorDto>> listarPorPartida(@PathVariable("partidaId") Long partidaId) {
         List<AnotadorDto> anotadores = anotadorService.listarPorPartida(partidaId);
         return ResponseEntity.ok(anotadores);
     }
@@ -44,14 +44,14 @@ public class AnotadorController {
     // Actualizar cartas descartadas de un anotador
     @PutMapping("/{anotadorId}/descartadas")
     public ResponseEntity<AnotadorDto> actualizarCartasDescartadas(
-            @PathVariable Long anotadorId,
+            @PathVariable("anotadorId") Long anotadorId,
             @Valid @RequestBody List<Long> nuevasCartasDescartadas) {
         return ResponseEntity.ok(anotadorService.actualizarCartasDescartadas(anotadorId, nuevasCartasDescartadas));
     }
 
     // Eliminar un anotador
     @DeleteMapping("/{id}")
-    public ResponseEntity<MensajeDto> eliminarAnotador(@PathVariable Long id) {
+    public ResponseEntity<MensajeDto> eliminarAnotador(@PathVariable("id") Long id) {
         anotadorService.eliminarAnotador(id);
         return ResponseEntity.ok(new MensajeDto("Anotador eliminado correctamente."));
     }

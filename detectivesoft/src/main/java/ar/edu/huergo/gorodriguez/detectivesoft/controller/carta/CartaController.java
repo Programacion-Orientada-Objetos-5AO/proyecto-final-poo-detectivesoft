@@ -26,45 +26,53 @@ public class CartaController {
 
     private final CartaService cartaService;
 
+    // Crear una nueva carta
     @PostMapping
     public ResponseEntity<CartaDto> crearCarta(@Valid @RequestBody CartaDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cartaService.crearCarta(dto));
     }
 
+    // Obtener una carta por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<CartaDto> obtenerCartaPorId(@PathVariable Long id) {
+    public ResponseEntity<CartaDto> obtenerCartaPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(cartaService.obtenerCartaPorId(id));
     }
 
+    // Obtener todas las cartas
     @GetMapping
     public ResponseEntity<List<CartaDto>> obtenerTodasLasCartas() {
         return ResponseEntity.ok(cartaService.obtenerTodasLasCartas());
     }
 
+    // Obtener cartas por partida
     @GetMapping("/partida/{partidaId}")
-    public ResponseEntity<List<CartaDto>> obtenerCartasPorPartida(@PathVariable Long partidaId) {
+    public ResponseEntity<List<CartaDto>> obtenerCartasPorPartida(@PathVariable("partidaId") Long partidaId) {
         return ResponseEntity.ok(cartaService.obtenerCartasPorPartida(partidaId));
     }
 
+    // Obtener cartas por jugador
     @GetMapping("/jugador/{jugadorId}")
-    public ResponseEntity<List<CartaDto>> obtenerCartasPorJugador(@PathVariable Long jugadorId) {
+    public ResponseEntity<List<CartaDto>> obtenerCartasPorJugador(@PathVariable("jugadorId") Long jugadorId) {
         return ResponseEntity.ok(cartaService.obtenerCartasPorJugador(jugadorId));
     }
 
+    // Obtener cartas sin repartir en una partida
     @GetMapping("/sin-repartir/{partidaId}")
-    public ResponseEntity<List<CartaDto>> obtenerCartasSinRepartir(@PathVariable Long partidaId) {
+    public ResponseEntity<List<CartaDto>> obtenerCartasSinRepartir(@PathVariable("partidaId") Long partidaId) {
         return ResponseEntity.ok(cartaService.obtenerCartasSinRepartir(partidaId));
     }
 
+    // Actualizar una carta existente
     @PutMapping("/{id}")
     public ResponseEntity<CartaDto> actualizarCarta(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody CartaDto dto) {
         return ResponseEntity.ok(cartaService.actualizarCarta(id, dto));
     }
 
+    // Eliminar una carta por su ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCarta(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarCarta(@PathVariable("id") Long id) {
         cartaService.eliminarCarta(id);
         return ResponseEntity.noContent().build();
     }

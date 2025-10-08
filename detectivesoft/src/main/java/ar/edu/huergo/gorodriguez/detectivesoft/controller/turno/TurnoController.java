@@ -21,16 +21,16 @@ public class TurnoController {
     // Crear turno
     @PostMapping("/crear/{partidaId}/{jugadorId}/{numeroTurno}")
     public ResponseEntity<TurnoDto> crearTurno(
-            @PathVariable Long partidaId,
-            @PathVariable Long jugadorId,
-            @PathVariable int numeroTurno) {
+            @PathVariable("partidaId") Long partidaId,
+            @PathVariable("jugadorId") Long jugadorId,
+            @PathVariable("numeroTurno") int numeroTurno) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(turnoService.crearTurno(partidaId, jugadorId, numeroTurno));
     }
 
     // Obtener turno por ID
     @GetMapping("/{id}")
-    public ResponseEntity<TurnoDto> obtenerTurnoPorId(@PathVariable Long id) {
+    public ResponseEntity<TurnoDto> obtenerTurnoPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(turnoService.obtenerTurnoPorId(id));
     }
 
@@ -42,33 +42,33 @@ public class TurnoController {
 
     // Listar turnos de una partida
     @GetMapping("/partida/{partidaId}")
-    public ResponseEntity<List<TurnoDto>> obtenerTurnosPorPartida(@PathVariable Long partidaId) {
+    public ResponseEntity<List<TurnoDto>> obtenerTurnosPorPartida(@PathVariable("partidaId") Long partidaId) {
         return ResponseEntity.ok(turnoService.obtenerTurnosPorPartida(partidaId));
     }
 
     // Listar turnos de un jugador
     @GetMapping("/jugador/{jugadorId}")
-    public ResponseEntity<List<TurnoDto>> obtenerTurnosPorJugador(@PathVariable Long jugadorId) {
+    public ResponseEntity<List<TurnoDto>> obtenerTurnosPorJugador(@PathVariable("jugadorId") Long jugadorId) {
         return ResponseEntity.ok(turnoService.obtenerTurnosPorJugador(jugadorId));
     }
 
     // Finalizar turno
     @PostMapping("/finalizar/{turnoId}")
-    public ResponseEntity<TurnoDto> finalizarTurno(@PathVariable Long turnoId) {
+    public ResponseEntity<TurnoDto> finalizarTurno(@PathVariable("turnoId") Long turnoId) {
         return ResponseEntity.ok(turnoService.finalizarTurno(turnoId));
     }
 
     // Actualizar turno
     @PutMapping("/{id}")
     public ResponseEntity<TurnoDto> actualizarTurno(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody TurnoDto turnoDto) {
         return ResponseEntity.ok(turnoService.actualizarTurno(id, turnoDto));
     }
 
     // Eliminar turno
     @DeleteMapping("/{id}")
-    public ResponseEntity<MensajeDto> eliminarTurno(@PathVariable Long id) {
+    public ResponseEntity<MensajeDto> eliminarTurno(@PathVariable("id") Long id) {
         turnoService.eliminarTurno(id);
         return ResponseEntity.ok(new MensajeDto("Turno eliminado correctamente."));
     }
