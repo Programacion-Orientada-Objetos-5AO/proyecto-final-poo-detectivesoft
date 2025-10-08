@@ -37,6 +37,17 @@ public class CartaServiceImpl implements CartaService {
     }
 
     @Override
+    public List<CartaDto> obtenerCartasPorTipo(String tipo) {
+        try {
+            Carta.TipoCarta tipoEnum = Carta.TipoCarta.valueOf(tipo.toUpperCase());
+            return cartaMapper.toDtoList(cartaRepository.findByTipo(tipoEnum));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Tipo de carta inválido: " + tipo);
+        }
+    }
+
+
+    @Override
     public List<CartaDto> obtenerCartasPorPartida(Long partidaId) {
         return cartaMapper.toDtoList(cartaRepository.findByPartidaId(partidaId));
     }

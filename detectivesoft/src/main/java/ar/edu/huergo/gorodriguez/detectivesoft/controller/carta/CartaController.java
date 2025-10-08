@@ -44,6 +44,11 @@ public class CartaController {
         return ResponseEntity.ok(cartaService.obtenerTodasLasCartas());
     }
 
+    @GetMapping("/tipo/{tipo}")
+    public ResponseEntity<List<CartaDto>> obtenerCartasPorId(@PathVariable("tipo") String tipo){
+        return ResponseEntity.ok(cartaService.obtenerCartasPorTipo(tipo));
+    }
+
     // Obtener cartas por partida
     @GetMapping("/partida/{partidaId}")
     public ResponseEntity<List<CartaDto>> obtenerCartasPorPartida(@PathVariable("partidaId") Long partidaId) {

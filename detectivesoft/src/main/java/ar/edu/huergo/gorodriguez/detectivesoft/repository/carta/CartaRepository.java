@@ -8,6 +8,8 @@ import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 
 public interface CartaRepository extends JpaRepository<Carta, Long> {
 
+    List<Carta> findByTipo(Carta.TipoCarta tipo);
+
     List<Carta> findByPartidaId(Long partidaId);
 
     List<Carta> findByJugadorId(Long jugadorId);

@@ -12,6 +12,8 @@ public interface CartaService {
 
     List<CartaDto> obtenerTodasLasCartas();
 
+    List<CartaDto> obtenerCartasPorTipo(String tipo);
+
     List<CartaDto> obtenerCartasPorPartida(Long partidaId);
 
     List<CartaDto> obtenerCartasPorJugador(Long jugadorId);

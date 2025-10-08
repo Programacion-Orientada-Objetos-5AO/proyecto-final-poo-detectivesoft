@@ -141,6 +141,7 @@ public class PartidaServiceImpl implements PartidaService {
         int index = 0;
         for (Carta carta : cartas) {
             Jugador jugador = partida.getJugadores().get(index % numJugadores);
+            carta.setJugador(jugador);
             jugador.getCartas().add(carta);
             index++;
         }
@@ -159,7 +160,9 @@ public class PartidaServiceImpl implements PartidaService {
         partida.getTurnos().add(primerTurno);
         partida.setTurnoActual(primerTurno);
 
+        cartaRepository.saveAll(cartas);
         partidaRepository.save(partida);
+
 
         return partidaMapper.toDto(partida);
     }
