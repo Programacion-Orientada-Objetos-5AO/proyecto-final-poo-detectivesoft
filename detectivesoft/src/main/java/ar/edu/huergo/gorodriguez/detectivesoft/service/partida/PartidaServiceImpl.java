@@ -2,12 +2,15 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.partida;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta.TipoCarta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida.EstadoPartida;
@@ -132,21 +135,47 @@ public class PartidaServiceImpl implements PartidaService {
         if (cartas.isEmpty()) {
             throw new IllegalStateException("No hay cartas disponibles para repartir");
         }
+        // Separar las cartas por tipo
+        List<Carta> personajes = cartas.stream()
+                .filter(c -> c.getTipo() == TipoCarta.PERSONAJE)
+                .toList();
 
-        // Mezclar las cartas
-        Collections.shuffle(cartas);
+        List<Carta> armas = cartas.stream()
+                .filter(c -> c.getTipo() == TipoCarta.ARMA)
+                .toList();
 
-        // Repartir cartas entre los jugadores
+        List<Carta> habitaciones = cartas.stream()
+                .filter(c -> c.getTipo() == TipoCarta.HABITACION)
+                .toList();
+
+        // Seleccionar al azar una carta de cada tipo para el sobre
+        Random random = new Random();
+        Carta personajeCulpable = personajes.get(random.nextInt(personajes.size()));
+        Carta armaCulpable = armas.get(random.nextInt(armas.size()));
+        Carta habitacionCulpable = habitaciones.get(random.nextInt(habitaciones.size()));
+
+        // Asignar las cartas del sobre a la partida
+        partida.setCartaCulpablePersonaje(personajeCulpable);
+        partida.setCartaCulpableArma(armaCulpable);
+        partida.setCartaCulpableHabitacion(habitacionCulpable);
+
+        // Remover las cartas del sobre de la lista de cartas a repartir
+        List<Carta> cartasRepartibles = cartas.stream()
+                .filter(c -> !List.of(personajeCulpable, armaCulpable, habitacionCulpable).contains(c))
+                .collect(Collectors.toList());
+
+        // Mezclar y repartir las cartas entre los jugadores
+        Collections.shuffle(cartasRepartibles);
         int numJugadores = partida.getJugadores().size();
         int index = 0;
-        for (Carta carta : cartas) {
+        for (Carta carta : cartasRepartibles) {
             Jugador jugador = partida.getJugadores().get(index % numJugadores);
             carta.setJugador(jugador);
             jugador.getCartas().add(carta);
             index++;
         }
 
-        // Seleccionar el jugador inicial (por ejemplo, el primero en la lista)
+        // Seleccionar al azar el jugador inicial
         Jugador jugadorInicial = partida.getJugadores().get(0);
 
         // Crear el primer turno

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import jakarta.persistence.Column;
@@ -16,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -87,5 +89,14 @@ public class Partida {
     @OneToOne
     @JoinColumn(name = "turno_actual_id")
     private Turno turnoActual;
+
+    @ManyToOne
+    private Carta cartaCulpablePersonaje;
+
+    @ManyToOne
+    private Carta cartaCulpableArma;
+
+    @ManyToOne
+    private Carta cartaCulpableHabitacion;
 
 } 
