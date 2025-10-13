@@ -29,8 +29,13 @@ public class AcusacionController {
 
     //Crear Acusacion
     @PostMapping
-    public ResponseEntity<AcusacionDto> crearAcusacion(@Valid @RequestBody AcusacionDto dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(acusacionService.crearAcusacion(dto));
+    public ResponseEntity<?> crearAcusacion(@Valid @RequestBody AcusacionDto dto) {
+        try {
+            AcusacionDto creada = acusacionService.crearAcusacion(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MensajeDto(e.getMessage()));
+        }
     }
 
     // Obtener todas las acusaciones

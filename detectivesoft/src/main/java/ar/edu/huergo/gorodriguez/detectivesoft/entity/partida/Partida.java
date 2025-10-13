@@ -7,6 +7,7 @@ import java.util.List;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +25,6 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.CascadeType;
 
 @Entity
 @Data
@@ -38,7 +38,7 @@ public class Partida {
     private Long id;
 
     @Column(nullable = false, unique = true, length = 20)
-    private String codigo; // código para invitar jugadores
+    private String codigo;  
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

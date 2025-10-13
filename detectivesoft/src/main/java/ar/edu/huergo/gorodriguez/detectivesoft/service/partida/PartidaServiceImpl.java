@@ -18,6 +18,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.partida.PartidaMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Collections;
@@ -30,6 +31,7 @@ public class PartidaServiceImpl implements PartidaService {
     private final PartidaRepository partidaRepository;
     private final JugadorRepository jugadorRepository;
     private final CartaRepository cartaRepository;
+    private final TurnoRepository turnoRepository;
     private final PartidaMapper partidaMapper;
 
     @Override
@@ -126,46 +128,44 @@ public class PartidaServiceImpl implements PartidaService {
             throw new IllegalStateException("Debe haber al menos 2 jugadores para iniciar la partida");
         }
 
-        // Cambiar estado de la partida a EN_CURSO
+        // Cambiar estado
         partida.setEstado(EstadoPartida.EN_CURSO);
 
-        // Obtener todas las cartas disponibles
+        // Obtener y separar cartas
         List<Carta> cartas = cartaRepository.findAll();
-
         if (cartas.isEmpty()) {
             throw new IllegalStateException("No hay cartas disponibles para repartir");
         }
-        // Separar las cartas por tipo
+
         List<Carta> personajes = cartas.stream()
                 .filter(c -> c.getTipo() == TipoCarta.PERSONAJE)
                 .toList();
-
         List<Carta> armas = cartas.stream()
                 .filter(c -> c.getTipo() == TipoCarta.ARMA)
                 .toList();
-
         List<Carta> habitaciones = cartas.stream()
                 .filter(c -> c.getTipo() == TipoCarta.HABITACION)
                 .toList();
 
-        // Seleccionar al azar una carta de cada tipo para el sobre
+        // Elegir cartas culpables
         Random random = new Random();
         Carta personajeCulpable = personajes.get(random.nextInt(personajes.size()));
         Carta armaCulpable = armas.get(random.nextInt(armas.size()));
         Carta habitacionCulpable = habitaciones.get(random.nextInt(habitaciones.size()));
 
-        // Asignar las cartas del sobre a la partida
+        // Guardar cartas culpables en la partida
         partida.setCartaCulpablePersonaje(personajeCulpable);
         partida.setCartaCulpableArma(armaCulpable);
         partida.setCartaCulpableHabitacion(habitacionCulpable);
 
-        // Remover las cartas del sobre de la lista de cartas a repartir
+        // Cartas a repartir
         List<Carta> cartasRepartibles = cartas.stream()
                 .filter(c -> !List.of(personajeCulpable, armaCulpable, habitacionCulpable).contains(c))
                 .collect(Collectors.toList());
 
-        // Mezclar y repartir las cartas entre los jugadores
         Collections.shuffle(cartasRepartibles);
+
+        // Repartir entre jugadores
         int numJugadores = partida.getJugadores().size();
         int index = 0;
         for (Carta carta : cartasRepartibles) {
@@ -175,10 +175,9 @@ public class PartidaServiceImpl implements PartidaService {
             index++;
         }
 
-        // Seleccionar al azar el jugador inicial
-        Jugador jugadorInicial = partida.getJugadores().get(0);
+        Jugador jugadorInicial = partida.getJugadores().get(random.nextInt(numJugadores));
 
-        // Crear el primer turno
+        // Crear primer turno
         Turno primerTurno = new Turno();
         primerTurno.setPartida(partida);
         primerTurno.setJugador(jugadorInicial);
@@ -186,16 +185,14 @@ public class PartidaServiceImpl implements PartidaService {
         primerTurno.setActivo(true);
         primerTurno.setFechaInicio(LocalDateTime.now());
 
-        partida.getTurnos().add(primerTurno);
+        turnoRepository.save(primerTurno);
+
         partida.setTurnoActual(primerTurno);
+        partida.getTurnos().add(primerTurno);
 
         cartaRepository.saveAll(cartas);
         partidaRepository.save(partida);
 
-
         return partidaMapper.toDto(partida);
     }
-
-
-    
 }

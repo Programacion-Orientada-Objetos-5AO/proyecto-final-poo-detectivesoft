@@ -9,6 +9,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.dto.acusacion.AcusacionDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.acusacion.Acusacion;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.acusacion.AcusacionMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.acusacion.AcusacionRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
@@ -31,11 +32,19 @@ public class AcusacionServiceImpl implements AcusacionService {
     public AcusacionDto crearAcusacion(AcusacionDto dto) {
         Acusacion acusacion = new Acusacion();
 
-        acusacion.setPartida(partidaRepository.findById(dto.getPartidaId())
-                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada")));
-        acusacion.setJugador(jugadorRepository.findById(dto.getJugadorId())
-                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado")));
+        Partida partida = partidaRepository.findById(dto.getPartidaId())
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
+        Jugador jugador = jugadorRepository.findById(dto.getJugadorId())
+                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
 
+        // Validar si es su turno
+        if (partida.getTurnoActual() == null || 
+            partida.getTurnoActual().getJugador() == null ||
+            !partida.getTurnoActual().getJugador().getId().equals(jugador.getId())) {
+            throw new IllegalStateException("No es tu turno para hacer una acusación.");
+        }
+
+        // Buscar las cartas
         acusacion.setArma(cartaRepository.findById(dto.getArmaId())
                 .orElseThrow(() -> new EntityNotFoundException("Carta de arma no encontrada")));
         acusacion.setHabitacion(cartaRepository.findById(dto.getHabitacionId())
@@ -43,12 +52,12 @@ public class AcusacionServiceImpl implements AcusacionService {
         acusacion.setPersonaje(cartaRepository.findById(dto.getPersonajeId())
                 .orElseThrow(() -> new EntityNotFoundException("Carta de personaje no encontrada")));
 
-        Partida partida = acusacion.getPartida();
-
+        // Verificar si la acusación es correcta
         boolean esCorrecta = false;
         if (partida.getCartaCulpableArma() != null &&
             partida.getCartaCulpableHabitacion() != null &&
             partida.getCartaCulpablePersonaje() != null) {
+
             esCorrecta =
                 partida.getCartaCulpableArma().getId().equals(acusacion.getArma().getId()) &&
                 partida.getCartaCulpableHabitacion().getId().equals(acusacion.getHabitacion().getId()) &&
@@ -56,10 +65,52 @@ public class AcusacionServiceImpl implements AcusacionService {
         }
 
         acusacion.setCorrecta(esCorrecta);
+        acusacion.setPartida(partida);
+        acusacion.setJugador(jugador);
         acusacion.setFecha(LocalDateTime.now());
 
-        Acusacion guardada = acusacionRepository.save(acusacion);
-        return acusacionMapper.toDto(guardada);
+        acusacionRepository.save(acusacion);
+
+        // Si es correcta, finalizar la partida
+        // Si no, avanzar al siguiente turno
+        if (esCorrecta) {
+            partida.setEstado(Partida.EstadoPartida.FINALIZADA);
+        } else {
+            avanzarTurno(partida);
+        }
+
+        partidaRepository.save(partida);
+
+        return acusacionMapper.toDto(acusacion);
+    }
+
+    private void avanzarTurno(Partida partida) {
+        List<Jugador> jugadores = partida.getJugadores();
+        if (jugadores == null || jugadores.isEmpty()) return;
+
+        Turno turnoActual = partida.getTurnoActual();
+        if (turnoActual != null) {
+            turnoActual.setActivo(false);
+            turnoActual.setFechaFin(LocalDateTime.now());
+        }
+
+        // Determinar el siguiente jugador
+        Jugador jugadorActual = turnoActual.getJugador();
+        int indiceActual = jugadores.indexOf(jugadorActual);
+        int siguienteIndice = (indiceActual + 1) % jugadores.size();
+
+        Jugador siguienteJugador = jugadores.get(siguienteIndice);
+
+        // Crear y asignar el nuevo turno
+        Turno nuevoTurno = new Turno();
+        nuevoTurno.setPartida(partida);
+        nuevoTurno.setJugador(siguienteJugador);
+        nuevoTurno.setNumeroTurno(turnoActual.getNumeroTurno() + 1);
+        nuevoTurno.setActivo(true);
+        nuevoTurno.setFechaInicio(LocalDateTime.now());
+
+        partida.getTurnos().add(nuevoTurno);
+        partida.setTurnoActual(nuevoTurno);
     }
 
     @Override

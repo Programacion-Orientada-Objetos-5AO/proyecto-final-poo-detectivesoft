@@ -15,10 +15,13 @@ import lombok.Builder;
 @Builder
 public class PartidaDto {
     private Long id;
-    private String codigo; // código para invitar jugadores
-    private String estado; // estado de la partida: PENDIENTE, EN_CURSO, FINALIZADA
-    private LocalDateTime fechaCreacion; // fecha y hora de creación de la partida
-    private int maxJugadores; // máximo de jugadores permitidos en la partida
-    private int recuentoJugadores; // número actual de jugadores en la partida
-    private List<JugadorResumenDto> jugadores; // lista de jugadores en la partida
+    private String codigo;
+    private String estado;
+    private LocalDateTime fechaCreacion;
+    private int maxJugadores;
+    private int recuentoJugadores;
+    private List<JugadorResumenDto> jugadores;
+    private Long turnoActualJugadorId;
+    private String turnoActualJugadorNombre;
+
 }
