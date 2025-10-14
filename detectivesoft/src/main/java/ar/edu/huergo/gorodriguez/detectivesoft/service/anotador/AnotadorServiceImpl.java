@@ -1,11 +1,13 @@
 package ar.edu.huergo.gorodriguez.detectivesoft.service.anotador;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.anotador.AnotadorDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador.Anotador;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.anotador.AnotadorMapper;
@@ -64,5 +66,22 @@ public class AnotadorServiceImpl implements AnotadorService {
             throw new EntityNotFoundException("Anotador no encontrado");
         }
         anotadorRepository.deleteById(id);
+    }
+
+    public void crearAnotadoresParaPartida(Partida partida) {
+        for (Jugador jugador : partida.getJugadores()) {
+            Anotador anotador = new Anotador();
+            anotador.setJugador(jugador);
+            anotador.setPartida(partida);
+
+            // Inicializar las cartas descartadas con las cartas del jugador
+            List<Long> cartasJugador = jugador.getCartas()
+                    .stream()
+                    .map(Carta::getId)
+                    .collect(Collectors.toList());
+            anotador.setCartasDescartadas(cartasJugador);
+
+            anotadorRepository.save(anotador);
+        }
     }
 }

@@ -23,6 +23,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.service.anotador.AnotadorService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ public class PartidaServiceImpl implements PartidaService {
     private final JugadorRepository jugadorRepository;
     private final CartaRepository cartaRepository;
     private final TurnoRepository turnoRepository;
+    private final AnotadorService anotadorService;
     private final PartidaMapper partidaMapper;
 
     @Override
@@ -150,7 +152,6 @@ public class PartidaServiceImpl implements PartidaService {
             throw new IllegalStateException("La partida ya ha sido iniciada o finalizada");
         }
 
-        // Cambiar estado
         partida.setEstado(EstadoPartida.EN_CURSO);
 
         // Obtener y separar cartas
@@ -169,18 +170,15 @@ public class PartidaServiceImpl implements PartidaService {
                 .filter(c -> c.getTipo() == TipoCarta.HABITACION)
                 .toList();
 
-        // Elegir cartas culpables
         Random random = new Random();
         Carta personajeCulpable = personajes.get(random.nextInt(personajes.size()));
         Carta armaCulpable = armas.get(random.nextInt(armas.size()));
         Carta habitacionCulpable = habitaciones.get(random.nextInt(habitaciones.size()));
 
-        // Guardar cartas culpables en la partida
         partida.setCartaCulpablePersonaje(personajeCulpable);
         partida.setCartaCulpableArma(armaCulpable);
         partida.setCartaCulpableHabitacion(habitacionCulpable);
 
-        // Cartas a repartir
         partida.getJugadores().forEach(j -> j.getCartas().clear());
         List<Carta> cartasRepartibles = cartas.stream()
                 .filter(c -> !List.of(personajeCulpable, armaCulpable, habitacionCulpable).contains(c))
@@ -188,7 +186,6 @@ public class PartidaServiceImpl implements PartidaService {
 
         Collections.shuffle(cartasRepartibles);
 
-        // Repartir entre jugadores
         int numJugadores = partida.getJugadores().size();
         int index = 0;
         for (Carta carta : cartasRepartibles) {
@@ -199,9 +196,9 @@ public class PartidaServiceImpl implements PartidaService {
             index++;
         }
 
+        // Jugador inicial aleatorio
         Jugador jugadorInicial = partida.getJugadores().get(random.nextInt(numJugadores));
 
-        // Crear primer turno
         Turno primerTurno = new Turno();
         primerTurno.setPartida(partida);
         primerTurno.setJugador(jugadorInicial);
@@ -209,18 +206,19 @@ public class PartidaServiceImpl implements PartidaService {
         primerTurno.setActivo(true);
         primerTurno.setFechaInicio(LocalDateTime.now());
 
-        partidaRepository.save(partida);
         turnoRepository.save(primerTurno);
+        cartaRepository.saveAll(cartasRepartibles);
+
         partida.setTurnoActual(primerTurno);
         partida.getTurnos().add(primerTurno);
         partidaRepository.save(partida);
 
-        cartaRepository.saveAll(cartasRepartibles);
-        partidaRepository.save(partida);
+        // Crear anotadores para cada jugador en la partida
+        anotadorService.crearAnotadoresParaPartida(partida);
 
         log.info("Partida {} iniciada con {} jugadores", partida.getCodigo(), partida.getJugadores().size());
         log.info("Culpables: {} - {} - {}", personajeCulpable.getNombre(), armaCulpable.getNombre(), habitacionCulpable.getNombre());
-
+        log.info("Jugador inicial: {}", jugadorInicial.getUsername());
 
         return partidaMapper.toDto(partida);
     }
