@@ -15,4 +15,6 @@ public interface CartaRepository extends JpaRepository<Carta, Long> {
     List<Carta> findByJugadorId(Long jugadorId);
 
     List<Carta> findByPartidaIdAndJugadorIsNull(Long partidaId);
+
+    List<Carta> findByPartidaIsNull();
 }

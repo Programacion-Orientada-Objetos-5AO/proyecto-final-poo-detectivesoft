@@ -32,11 +32,11 @@ public class PartidaController {
     }
 
     // Unirse a partida
-    @PostMapping("/unirse/{codigo}/{jugadorId}")
+    @PostMapping("/unirse/{codigo}")
     public ResponseEntity<MensajeDto> unirseAPartida(
-            @PathVariable("codigo") String codigo,
-            @PathVariable("jugadorId") Long jugadorId) {
-        partidaService.unirseAPartida(codigo, jugadorId);
+            @PathVariable("codigo") String codigo ) 
+            {
+        partidaService.unirseAPartida(codigo);
         return ResponseEntity.ok(new MensajeDto("Te uniste correctamente a la partida."));
     }
 

@@ -105,7 +105,7 @@ class PartidaServiceImplTest {
         when(partidaRepository.save(any(Partida.class))).thenReturn(partida);
         when(partidaMapper.toDto(any(Partida.class))).thenReturn(partidaDto);
 
-        PartidaDto resultado = partidaService.unirseAPartida("ABC123", 2L);
+        PartidaDto resultado = partidaService.unirseAPartida("ABC123");
 
         assertNotNull(resultado);
         verify(partidaRepository, times(1)).save(partida);
@@ -125,7 +125,7 @@ class PartidaServiceImplTest {
         when(partidaRepository.findByCodigo("ABC123")).thenReturn(Optional.of(partida));
         when(jugadorRepository.findById(3L)).thenReturn(Optional.of(new Jugador()));
 
-        assertThrows(RuntimeException.class, () -> partidaService.unirseAPartida("ABC123", 3L));
+        assertThrows(RuntimeException.class, () -> partidaService.unirseAPartida("ABC123"));
     }
 
     @Test

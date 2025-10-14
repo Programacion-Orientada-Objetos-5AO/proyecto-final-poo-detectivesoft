@@ -1,11 +1,14 @@
 package ar.edu.huergo.gorodriguez.detectivesoft.service.partida;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
@@ -18,14 +21,15 @@ import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.partida.PartidaMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PartidaServiceImpl implements PartidaService {
 
     private final PartidaRepository partidaRepository;
@@ -50,16 +54,30 @@ public class PartidaServiceImpl implements PartidaService {
     }
 
     @Override
-    public PartidaDto unirseAPartida(String codigo, Long jugadorId) {
+    public PartidaDto unirseAPartida(String codigo) {
         Partida partida = partidaRepository.findByCodigo(codigo)
                 .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
 
-        Jugador jugador = jugadorRepository.findById(jugadorId)
-                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new IllegalStateException("No hay un jugador autenticado.");
+        }
+        
+        String username = auth.getName();
+
+        Jugador jugador = jugadorRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
 
         if (partida.getJugadores().contains(jugador)) {
             throw new IllegalStateException("El jugador ya está en la partida");
         }
+        if (partida.getEstado() != EstadoPartida.PENDIENTE) {
+            throw new IllegalStateException("No puedes unirte a una partida ya iniciada o finalizada.");
+        }
+        if (partida.getJugadores().size() >= partida.getMaxJugadores()) {
+            throw new IllegalStateException("La partida ya está llena");
+        }
+
         partida.agregarJugador(jugador);
 
         return partidaMapper.toDto(partidaRepository.save(partida));
@@ -128,11 +146,15 @@ public class PartidaServiceImpl implements PartidaService {
             throw new IllegalStateException("Debe haber al menos 2 jugadores para iniciar la partida");
         }
 
+        if (partida.getEstado() != EstadoPartida.PENDIENTE) {
+            throw new IllegalStateException("La partida ya ha sido iniciada o finalizada");
+        }
+
         // Cambiar estado
         partida.setEstado(EstadoPartida.EN_CURSO);
 
         // Obtener y separar cartas
-        List<Carta> cartas = cartaRepository.findAll();
+        List<Carta> cartas = cartaRepository.findByPartidaIsNull();
         if (cartas.isEmpty()) {
             throw new IllegalStateException("No hay cartas disponibles para repartir");
         }
@@ -159,6 +181,7 @@ public class PartidaServiceImpl implements PartidaService {
         partida.setCartaCulpableHabitacion(habitacionCulpable);
 
         // Cartas a repartir
+        partida.getJugadores().forEach(j -> j.getCartas().clear());
         List<Carta> cartasRepartibles = cartas.stream()
                 .filter(c -> !List.of(personajeCulpable, armaCulpable, habitacionCulpable).contains(c))
                 .collect(Collectors.toList());
@@ -171,6 +194,7 @@ public class PartidaServiceImpl implements PartidaService {
         for (Carta carta : cartasRepartibles) {
             Jugador jugador = partida.getJugadores().get(index % numJugadores);
             carta.setJugador(jugador);
+            carta.setPartida(partida);
             jugador.getCartas().add(carta);
             index++;
         }
@@ -185,13 +209,18 @@ public class PartidaServiceImpl implements PartidaService {
         primerTurno.setActivo(true);
         primerTurno.setFechaInicio(LocalDateTime.now());
 
+        partidaRepository.save(partida);
         turnoRepository.save(primerTurno);
-
         partida.setTurnoActual(primerTurno);
         partida.getTurnos().add(primerTurno);
-
-        cartaRepository.saveAll(cartas);
         partidaRepository.save(partida);
+
+        cartaRepository.saveAll(cartasRepartibles);
+        partidaRepository.save(partida);
+
+        log.info("Partida {} iniciada con {} jugadores", partida.getCodigo(), partida.getJugadores().size());
+        log.info("Culpables: {} - {} - {}", personajeCulpable.getNombre(), armaCulpable.getNombre(), habitacionCulpable.getNombre());
+
 
         return partidaMapper.toDto(partida);
     }

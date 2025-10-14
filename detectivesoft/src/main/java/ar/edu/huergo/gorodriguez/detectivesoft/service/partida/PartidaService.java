@@ -9,7 +9,7 @@ public interface PartidaService {
     PartidaDto crearPartida(Long creadorId);
 
     // Un jugador se une a una partida
-    PartidaDto unirseAPartida(String codigo, Long jugadorId);
+    PartidaDto unirseAPartida(String codigo);
 
     // Iniciar una partida
     PartidaDto iniciarPartida(Long partidaId);
