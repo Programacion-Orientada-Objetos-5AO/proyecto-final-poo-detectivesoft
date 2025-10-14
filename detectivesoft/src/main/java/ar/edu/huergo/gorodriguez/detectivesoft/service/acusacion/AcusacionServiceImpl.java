@@ -3,6 +3,7 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.acusacion;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.acusacion.AcusacionDto;
@@ -16,6 +17,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,58 +32,62 @@ public class AcusacionServiceImpl implements AcusacionService {
 
     @Override
     public AcusacionDto crearAcusacion(AcusacionDto dto) {
-        Acusacion acusacion = new Acusacion();
 
+        // Obtener jugador autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new IllegalStateException("No hay un jugador autenticado.");
+        }
+        String username = auth.getName();
+
+        Jugador jugador = jugadorRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
+
+        // Buscar la partida
         Partida partida = partidaRepository.findById(dto.getPartidaId())
                 .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
-        Jugador jugador = jugadorRepository.findById(dto.getJugadorId())
-                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
 
-        // Validar si es su turno
-        if (partida.getTurnoActual() == null || 
-            partida.getTurnoActual().getJugador() == null ||
-            !partida.getTurnoActual().getJugador().getId().equals(jugador.getId())) {
+        // Verificar turno
+        Long idTurno = partida.getTurnoActual().getJugador().getId();
+        if (!idTurno.equals(jugador.getId())) {
             throw new IllegalStateException("No es tu turno para hacer una acusación.");
         }
 
-        // Buscar las cartas
-        acusacion.setArma(cartaRepository.findById(dto.getArmaId())
-                .orElseThrow(() -> new EntityNotFoundException("Carta de arma no encontrada")));
-        acusacion.setHabitacion(cartaRepository.findById(dto.getHabitacionId())
-                .orElseThrow(() -> new EntityNotFoundException("Carta de habitación no encontrada")));
-        acusacion.setPersonaje(cartaRepository.findById(dto.getPersonajeId())
-                .orElseThrow(() -> new EntityNotFoundException("Carta de personaje no encontrada")));
+        // Buscar cartas
+        var arma = cartaRepository.findById(dto.getArmaId())
+                .orElseThrow(() -> new EntityNotFoundException("Carta de arma no encontrada"));
+        var habitacion = cartaRepository.findById(dto.getHabitacionId())
+                .orElseThrow(() -> new EntityNotFoundException("Carta de habitación no encontrada"));
+        var personaje = cartaRepository.findById(dto.getPersonajeId())
+                .orElseThrow(() -> new EntityNotFoundException("Carta de personaje no encontrada"));
 
-        // Verificar si la acusación es correcta
-        boolean esCorrecta = false;
-        if (partida.getCartaCulpableArma() != null &&
-            partida.getCartaCulpableHabitacion() != null &&
-            partida.getCartaCulpablePersonaje() != null) {
-
-            esCorrecta =
-                partida.getCartaCulpableArma().getId().equals(acusacion.getArma().getId()) &&
-                partida.getCartaCulpableHabitacion().getId().equals(acusacion.getHabitacion().getId()) &&
-                partida.getCartaCulpablePersonaje().getId().equals(acusacion.getPersonaje().getId());
-        }
-
-        acusacion.setCorrecta(esCorrecta);
+        // Crear acusación
+        Acusacion acusacion = new Acusacion();
         acusacion.setPartida(partida);
         acusacion.setJugador(jugador);
+        acusacion.setArma(arma);
+        acusacion.setHabitacion(habitacion);
+        acusacion.setPersonaje(personaje);
         acusacion.setFecha(LocalDateTime.now());
 
-        acusacionRepository.save(acusacion);
+        // Validar si es correcta
+        boolean esCorrecta =
+                partida.getCartaCulpableArma().getId().equals(arma.getId()) &&
+                partida.getCartaCulpableHabitacion().getId().equals(habitacion.getId()) &&
+                partida.getCartaCulpablePersonaje().getId().equals(personaje.getId());
 
-        // Si es correcta, finalizar la partida
-        // Si no, avanzar al siguiente turno
-        if (esCorrecta) {
-            partida.setEstado(Partida.EstadoPartida.FINALIZADA);
-        } else {
+        acusacion.setCorrecta(esCorrecta);
+
+        // Guardar acusación
+        Acusacion guardada = acusacionRepository.save(acusacion);
+
+        // Si falla, pasa el turno
+        if (!esCorrecta) {
             avanzarTurno(partida);
         }
-
         partidaRepository.save(partida);
 
-        return acusacionMapper.toDto(acusacion);
+        return acusacionMapper.toDto(guardada);
     }
 
     private void avanzarTurno(Partida partida) {
@@ -111,6 +117,7 @@ public class AcusacionServiceImpl implements AcusacionService {
 
         partida.getTurnos().add(nuevoTurno);
         partida.setTurnoActual(nuevoTurno);
+        partidaRepository.save(partida);
     }
 
     @Override
