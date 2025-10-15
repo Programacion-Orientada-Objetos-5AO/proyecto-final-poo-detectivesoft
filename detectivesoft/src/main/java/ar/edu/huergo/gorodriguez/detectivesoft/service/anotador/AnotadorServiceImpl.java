@@ -3,6 +3,8 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.anotador;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.anotador.AnotadorDto;
@@ -56,9 +58,21 @@ public class AnotadorServiceImpl implements AnotadorService {
     public AnotadorDto actualizarCartasDescartadas(Long anotadorId, List<Long> nuevasCartasDescartadas) {
         Anotador anotador = anotadorRepository.findById(anotadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado"));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Jugador jugador = jugadorRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
+
+        if (!anotador.getJugador().getId().equals(jugador.getId())) {
+            throw new IllegalStateException("No puedes editar el anotador de otro jugador.");
+        }
+
         anotador.setCartasDescartadas(nuevasCartasDescartadas);
         return anotadorMapper.toDto(anotadorRepository.save(anotador));
     }
+
 
     @Override
     public void eliminarAnotador(Long id) {

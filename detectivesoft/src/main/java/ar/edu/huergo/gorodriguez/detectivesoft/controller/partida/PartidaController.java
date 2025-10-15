@@ -10,10 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.MensajeDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.service.partida.PartidaService;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class PartidaController {
 
     private final PartidaService partidaService;
+    private final PartidaRepository partidaRepository;
 
     // Crear partida
     @PostMapping("/crear/{creadorId}")
@@ -77,6 +82,25 @@ public class PartidaController {
     public ResponseEntity<MensajeDto> iniciarPartida(@PathVariable("id") Long id) {
         partidaService.iniciarPartida(id);
         return ResponseEntity.ok(new MensajeDto("Partida iniciada y cartas repartidas correctamente."));
+    }
+
+
+    @GetMapping("/{partidaId}/turno-actual")
+    public ResponseEntity<?> obtenerTurnoActual(@PathVariable Long partidaId) {
+        Partida partida = partidaRepository.findById(partidaId)
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
+        
+        if (partida.getTurnoActual() == null) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new MensajeDto("La partida aún no tiene turno activo."));
+        }
+
+        var turno = partida.getTurnoActual();
+        return ResponseEntity.ok(Map.of(
+                "numeroTurno", turno.getNumeroTurno(),
+                "jugadorId", turno.getJugador().getId(),
+                "jugadorNombre", turno.getJugador().getUsername()
+        ));
     }
 
 }

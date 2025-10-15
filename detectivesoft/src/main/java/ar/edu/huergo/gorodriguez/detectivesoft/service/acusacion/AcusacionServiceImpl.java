@@ -10,6 +10,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.dto.acusacion.AcusacionDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.acusacion.Acusacion;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida.EstadoPartida;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.acusacion.AcusacionMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.acusacion.AcusacionRepository;
@@ -47,6 +48,12 @@ public class AcusacionServiceImpl implements AcusacionService {
         Partida partida = partidaRepository.findById(dto.getPartidaId())
                 .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
 
+        
+        // Verificar estado de la partida
+        if (partida.getEstado() == EstadoPartida.FINALIZADA) {
+            throw new IllegalStateException("La partida ya ha finalizado.");
+        }
+
         // Verificar turno
         Long idTurno = partida.getTurnoActual().getJugador().getId();
         if (!idTurno.equals(jugador.getId())) {
@@ -81,11 +88,13 @@ public class AcusacionServiceImpl implements AcusacionService {
         // Guardar acusación
         Acusacion guardada = acusacionRepository.save(acusacion);
 
-        // Si falla, pasa el turno
-        if (!esCorrecta) {
+        if (esCorrecta) {
+            partida.setEstado(EstadoPartida.FINALIZADA);
+            partidaRepository.save(partida);
+        } else {
             avanzarTurno(partida);
+            partidaRepository.save(partida);
         }
-        partidaRepository.save(partida);
 
         return acusacionMapper.toDto(guardada);
     }
