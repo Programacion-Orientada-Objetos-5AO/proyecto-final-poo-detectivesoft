@@ -2,7 +2,9 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.partida;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -221,5 +223,45 @@ public class PartidaServiceImpl implements PartidaService {
         log.info("Jugador inicial: {}", jugadorInicial.getUsername());
 
         return partidaMapper.toDto(partida);
+    }
+
+    @Override
+    public Map<String, Object> obtenerEstadoPartida(Long id) {
+        Partida partida = partidaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
+
+        Map<String, Object> estado = new HashMap<>();
+        estado.put("id", partida.getId());
+        estado.put("codigo", partida.getCodigo());
+        estado.put("estado", partida.getEstado().name());
+        estado.put("fechaCreacion", partida.getFechaCreacion());
+        estado.put("maxJugadores", partida.getMaxJugadores());
+        estado.put("recuentoJugadores", partida.getJugadores().size());
+
+        // Jugadores
+        estado.put("jugadores", partida.getJugadores().stream()
+                .map(j -> Map.of(
+                        "id", j.getId(),
+                        "nombre", j.getUsername(),
+                        "cantidadCartas", j.getCartas() != null ? j.getCartas().size() : 0
+                ))
+                .toList());
+
+        // Turno actual
+        estado.put("turnoActual", partida.getTurnoActual() != null
+                ? Map.of(
+                    "numeroTurno", partida.getTurnoActual().getNumeroTurno(),
+                    "jugador", partida.getTurnoActual().getJugador().getUsername()
+                )
+                : null);
+
+        // Culpables
+        estado.put("culpables", Map.of(
+                "arma", partida.getCartaCulpableArma() != null ? partida.getCartaCulpableArma().getNombre() : null,
+                "habitacion", partida.getCartaCulpableHabitacion() != null ? partida.getCartaCulpableHabitacion().getNombre() : null,
+                "personaje", partida.getCartaCulpablePersonaje() != null ? partida.getCartaCulpablePersonaje().getNombre() : null
+        ));
+
+        return estado;
     }
 }

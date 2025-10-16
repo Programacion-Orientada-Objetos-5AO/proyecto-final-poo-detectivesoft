@@ -103,4 +103,12 @@ public class PartidaController {
         ));
     }
 
+    // Obtener el estado completo de una partida
+    @GetMapping("/{id}/estado")
+    public ResponseEntity<?> obtenerEstadoPartida(@PathVariable Long id) {
+        Map<String, Object> estado = partidaService.obtenerEstadoPartida(id);
+        return ResponseEntity.ok(estado);
+    }
+
+
 }
