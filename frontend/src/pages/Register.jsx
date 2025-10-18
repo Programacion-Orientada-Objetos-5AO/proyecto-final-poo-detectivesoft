@@ -1,55 +1,86 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { register } from "../services/authService";
+import { registerUser } from "../services/api";
+import "../styles/register.css";
 
 function Register() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar contraseñas iguales antes de enviar
+    if (form.password !== form.confirmPassword) {
+      setMessage("❌ Las contraseñas no coinciden.");
+      return;
+    }
+
     try {
-      await register(username, password);
-      setMessage("Usuario registrado con éxito");
-      setTimeout(() => navigate("/login"), 2000);
+      const userData = {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        verificacionPassword: form.confirmPassword,
+      };
+
+      await registerUser(userData);
+      setMessage("✅ Registro exitoso. Ahora puedes iniciar sesión.");
+      setForm({ username: "", email: "", password: "", confirmPassword: "" });
     } catch (err) {
-      setMessage(err.message || "Error en el registro");
+      setMessage("❌ Error al registrarse. Verifica los datos.");
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: 400 }}>
-      <h3 className="text-center mb-4">Registro 🧾</h3>
-      {message && <div className="alert alert-info">{message}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Usuario</label>
+    <div className="register-container">
+      <div className="register-card">
+        <h2>Registro</h2>
+        <form onSubmit={handleSubmit}>
           <input
+            name="username"
             type="text"
-            className="form-control"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Usuario"
+            value={form.username}
+            onChange={handleChange}
             required
           />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Contraseña</label>
           <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            name="email"
+            type="email"
+            placeholder="Correo electrónico"
+            value={form.email}
+            onChange={handleChange}
             required
           />
-        </div>
-
-        <button type="submit" className="btn btn-success w-100">
-          Registrarse
-        </button>
-      </form>
+          <input
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="confirmPassword"
+            type="password"
+            placeholder="Confirmar contraseña"
+            value={form.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit">Registrarse</button>
+        </form>
+        {message && <p style={{ marginTop: "1rem" }}>{message}</p>}
+      </div>
     </div>
   );
 }

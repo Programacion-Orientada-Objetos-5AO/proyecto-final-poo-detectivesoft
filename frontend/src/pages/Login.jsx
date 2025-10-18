@@ -1,54 +1,43 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../services/authService";
+import { loginUser } from "../services/api";
+import "../styles/login.css";
 
-function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+function Login({ setIsAuthenticated }) {
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+
     try {
-      await login(username, password);
-      navigate("/");
+      const response = await loginUser(form);
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        setIsAuthenticated(true);
+        navigate("/dashboard");
+      }
     } catch (err) {
-      setError(err.message || "Error al iniciar sesión");
+      setMessage("❌ Error al iniciar sesión. Verifica tus datos.");
     }
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: 400 }}>
-      <h3 className="text-center mb-4">Iniciar sesión 🕵️‍♂️</h3>
-      {error && <div className="alert alert-danger">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Usuario</label>
-          <input
-            type="text"
-            className="form-control"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Contraseña</label>
-          <input
-            type="password"
-            className="form-control"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit" className="btn btn-primary w-100">
-          Entrar
-        </button>
-      </form>
+    <div className="login-container">
+      <div className="login-card">
+        <h2>Inicio de Sesión</h2>
+        <form onSubmit={handleSubmit}>
+          <input name="email" type="email" placeholder="Correo electrónico" onChange={handleChange} required />
+          <input name="password" type="password" placeholder="Contraseña" onChange={handleChange} required />
+          <button type="submit">Iniciar Sesión</button>
+        </form>
+        {message && <p style={{ marginTop: "1rem" }}>{message}</p>}
+      </div>
     </div>
   );
 }

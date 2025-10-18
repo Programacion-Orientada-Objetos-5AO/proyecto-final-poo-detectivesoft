@@ -1,15 +1,27 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/Navbar.css";
 
-function Navbar() {
+function Navbar({ isAuthenticated, setIsAuthenticated }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    navigate("/");
+  };
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-      <Link className="navbar-brand" to="/">DetectiveSoft</Link>
-      <div className="collapse navbar-collapse">
-        <ul className="navbar-nav ms-auto">
-          <li className="nav-item"><Link className="nav-link" to="/">Inicio</Link></li>
-          <li className="nav-item"><Link className="nav-link" to="/login">Login</Link></li>
-          <li className="nav-item"><Link className="nav-link" to="/register">Registro</Link></li>
-        </ul>
+    <nav className="navbar">
+      <Link to="/" className="navbar-brand">🕵️ DETECTIVE SOFT</Link>
+      <div>
+        {isAuthenticated ? (
+          <button className="nav-button" onClick={handleLogout}>Cerrar sesión</button>
+        ) : (
+          <>
+            <Link to="/login" className="nav-link">Iniciar sesión</Link>
+            <Link to="/register" className="nav-link">Registrarse</Link>
+          </>
+        )}
       </div>
     </nav>
   );
