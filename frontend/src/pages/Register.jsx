@@ -18,7 +18,6 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validar contraseñas iguales antes de enviar
     if (form.password !== form.confirmPassword) {
       setMessage("❌ Las contraseñas no coinciden.");
       return;

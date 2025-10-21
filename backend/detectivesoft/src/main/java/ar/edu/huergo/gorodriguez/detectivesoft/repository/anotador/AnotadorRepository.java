@@ -11,5 +11,7 @@ public interface AnotadorRepository extends JpaRepository<Anotador, Long> {
 
     List<Anotador> findByPartidaId(Long partidaId);
 
+    Optional<Anotador> findByJugadorId(Long jugadorId);
+
     Optional<Anotador> findByJugadorIdAndPartidaId(Long jugadorId, Long partidaId);
 }

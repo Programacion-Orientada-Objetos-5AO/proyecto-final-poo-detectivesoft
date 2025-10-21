@@ -16,6 +16,7 @@ import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.service.anotador.AnotadorService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,29 +26,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SospechaServiceImpl implements SospechaService {
 
-    private final PartidaRepository partidaRepository;
-    private final JugadorRepository jugadorRepository;
-    private final CartaRepository cartaRepository;
-    private final TurnoRepository turnoRepository;
+        private final PartidaRepository partidaRepository;
+        private final JugadorRepository jugadorRepository;
+        private final CartaRepository cartaRepository;
+        private final TurnoRepository turnoRepository;
+        private final AnotadorService anotadorService;
 
-    @Override
-    public SospechaResultadoDto resolverSospecha(SospechaRequest dto) {
+        @Override
+        public SospechaResultadoDto resolverSospecha(SospechaRequest dto) {
         Partida partida = partidaRepository.findById(dto.getPartidaId())
                 .orElseThrow(() -> new EntityNotFoundException("Partida no encontrada"));
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
-            throw new IllegalStateException("No hay un jugador autenticado.");
+                throw new IllegalStateException("No hay un jugador autenticado.");
         }
-        String username = auth.getName();
 
-        Jugador jugadorActual = jugadorRepository.findByUsername(username)
+        String email = auth.getName();
+
+        Jugador jugadorActual = jugadorRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
-        
+
         Turno turnoActual = partida.getTurnoActual();
-        if (turnoActual == null || !turnoActual.isActivo() || 
-            !turnoActual.getJugador().getId().equals(jugadorActual.getId())) {
-            throw new IllegalStateException("No es tu turno para realizar una sospecha.");
+        if (turnoActual == null || !turnoActual.isActivo() ||
+                !turnoActual.getJugador().getId().equals(jugadorActual.getId())) {
+                throw new IllegalStateException("No es tu turno para realizar una sospecha.");
         }
 
         Carta personaje = cartaRepository.findById(dto.getPersonajeId())
@@ -63,59 +66,67 @@ public class SospechaServiceImpl implements SospechaService {
                 personaje.getNombre(),
                 arma.getNombre(),
                 habitacion.getNombre());
-  
+
         List<Jugador> jugadores = partida.getJugadores();
         int indexActual = jugadores.indexOf(jugadorActual);
 
         for (int i = 1; i < jugadores.size(); i++) {
-            Jugador siguiente = jugadores.get((indexActual + i) % jugadores.size());
+                Jugador siguiente = jugadores.get((indexActual + i) % jugadores.size());
 
-            List<Carta> coincidencias = siguiente.getCartas().stream()
-                    .filter(cartasSospechadas::contains)
-                    .toList();
+                List<Carta> coincidencias = siguiente.getCartas().stream()
+                        .filter(cartasSospechadas::contains)
+                        .toList();
 
-            if (!coincidencias.isEmpty()) {
+                if (!coincidencias.isEmpty()) {
                 Carta cartaMostrada = coincidencias.get(0);
                 log.info("El jugador {} mostró la carta {}", siguiente.getUsername(), cartaMostrada.getNombre());
+
+                anotadorService.marcarCartaComoDescartada(jugadorActual.getId(), cartaMostrada.getId());
+
+                avanzarTurno(partida);
+                partidaRepository.save(partida);
+
+                log.info("Turno avanzado al jugador: {}", partida.getTurnoActual().getJugador().getUsername());
 
                 return new SospechaResultadoDto(
                         siguiente.getUsername(),
                         cartaMostrada.getNombre(),
                         "El jugador " + siguiente.getUsername() + " mostró una carta al jugador actual."
                 );
-            }
+                }
         }
 
         avanzarTurno(partida);
         partidaRepository.save(partida);
+        log.info("Ningún jugador pudo refutar. Turno avanzado al jugador: {}", partida.getTurnoActual().getJugador().getUsername());
 
         return new SospechaResultadoDto(
                 null,
                 null,
                 "Ningún jugador pudo refutar la sospecha. Se avanza el turno."
         );
-    }
+        }
 
-    private void avanzarTurno(Partida partida) {
-        Turno turnoActual = partida.getTurnoActual();
-        if (turnoActual == null || partida.getJugadores().isEmpty()) return;
+        private void avanzarTurno(Partida partida) {
+                Turno turnoActual = partida.getTurnoActual();
+                if (turnoActual == null || partida.getJugadores().isEmpty()) return;
 
-        turnoActual.setActivo(false);
-        turnoActual.setFechaFin(java.time.LocalDateTime.now());
-        turnoRepository.save(turnoActual);
+                turnoActual.setActivo(false);
+                turnoActual.setFechaFin(java.time.LocalDateTime.now());
+                turnoRepository.save(turnoActual);
 
-        List<Jugador> jugadores = partida.getJugadores();
-        int indiceActual = jugadores.indexOf(turnoActual.getJugador());
-        Jugador siguiente = jugadores.get((indiceActual + 1) % jugadores.size());
+                List<Jugador> jugadores = partida.getJugadores();
+                int indiceActual = jugadores.indexOf(turnoActual.getJugador());
+                Jugador siguiente = jugadores.get((indiceActual + 1) % jugadores.size());
 
-        Turno nuevoTurno = new Turno();
-        nuevoTurno.setPartida(partida);
-        nuevoTurno.setJugador(siguiente);
-        nuevoTurno.setNumeroTurno(turnoActual.getNumeroTurno() + 1);
-        nuevoTurno.setActivo(true);
-        nuevoTurno.setFechaInicio(java.time.LocalDateTime.now());
+                Turno nuevoTurno = new Turno();
+                nuevoTurno.setPartida(partida);
+                nuevoTurno.setJugador(siguiente);
+                nuevoTurno.setNumeroTurno(turnoActual.getNumeroTurno() + 1);
+                nuevoTurno.setActivo(true);
+                nuevoTurno.setFechaInicio(java.time.LocalDateTime.now());
 
-        turnoRepository.save(nuevoTurno);
-        partida.setTurnoActual(nuevoTurno);
-    }
+                turnoRepository.save(nuevoTurno);
+                partida.setTurnoActual(nuevoTurno);
+        }
 }

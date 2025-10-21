@@ -67,9 +67,9 @@ public class PartidaServiceImpl implements PartidaService {
             throw new IllegalStateException("No hay un jugador autenticado.");
         }
         
-        String username = auth.getName();
+        String email = auth.getName();
 
-        Jugador jugador = jugadorRepository.findByUsername(username)
+        Jugador jugador = jugadorRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
 
         if (partida.getJugadores().contains(jugador)) {
