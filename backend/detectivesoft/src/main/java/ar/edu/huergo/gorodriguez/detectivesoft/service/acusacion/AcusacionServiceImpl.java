@@ -20,9 +20,11 @@ import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaReposit
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AcusacionServiceImpl implements AcusacionService {
 
     private final AcusacionRepository acusacionRepository;
@@ -91,6 +93,7 @@ public class AcusacionServiceImpl implements AcusacionService {
         if (esCorrecta) {
             partida.setEstado(EstadoPartida.FINALIZADA);
             partidaRepository.save(partida);
+            log.info("El jugador {} ganó la partida con una acusación correcta.", jugador.getUsername());
         } else {
             avanzarTurno(partida);
             partidaRepository.save(partida);

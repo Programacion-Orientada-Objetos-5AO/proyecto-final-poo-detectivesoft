@@ -32,11 +32,18 @@ public class AcusacionController {
     public ResponseEntity<?> crearAcusacion(@Valid @RequestBody AcusacionDto dto) {
         try {
             AcusacionDto creada = acusacionService.crearAcusacion(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(creada);
+
+            if (Boolean.TRUE.equals(creada.getCorrecta())) {
+                return ResponseEntity.ok(new MensajeDto("🎉 ¡Acusación correcta! Ganaste la partida."));
+            } else {
+                return ResponseEntity.ok(new MensajeDto("❌ Acusación incorrecta. Quedás fuera de la partida."));
+            }
+
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new MensajeDto(e.getMessage()));
         }
     }
+
 
     // Obtener todas las acusaciones
     @GetMapping
