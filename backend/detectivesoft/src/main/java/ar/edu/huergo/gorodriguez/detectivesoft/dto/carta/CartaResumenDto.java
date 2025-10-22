@@ -9,13 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartaDto {
-
+public class CartaResumenDto {
     private Long id;
     private String nombre;
     private String tipo;
-    private String imagen;
-
-    private Long partidaId;
-    private Long jugadorId;
 }
