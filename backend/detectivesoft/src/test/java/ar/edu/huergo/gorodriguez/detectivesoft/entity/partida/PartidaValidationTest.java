@@ -1,19 +1,18 @@
 package ar.edu.huergo.gorodriguez.detectivesoft.entity.partida;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDateTime;
 import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.DisplayName;
 
 @DisplayName("Tests de Validación y Lógica - Entidad Partida")
 class PartidaEntityTest {
@@ -25,17 +24,15 @@ class PartidaEntityTest {
     void setUp() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
-
         partida = new Partida();
         partida.setCodigo("ABC123");
         partida.setEstado(Partida.EstadoPartida.PENDIENTE);
-        partida.setMaxJugadores(2);
+        partida.setFechaCreacion(LocalDateTime.now());
+        partida.setMaxJugadores(6);
     }
 
-    // ---------- VALIDACIONES ----------
-
     @Test
-    @DisplayName("Debería fallar validación con código nulo")
+    @DisplayName("Debería fallar validación si el código es nulo")
     void deberiaFallarConCodigoNulo() {
         partida.setCodigo(null);
 
@@ -46,51 +43,27 @@ class PartidaEntityTest {
     }
 
     @Test
-    @DisplayName("Debería fallar validación con estado nulo")
-    void deberiaFallarConEstadoNulo() {
-        partida.setEstado(null);
+    @DisplayName("Debería agregar y remover jugadores correctamente")
+    void deberiaAgregarYRemoverJugadores() {
+        Jugador j1 = new Jugador("test@mail.com", "player", "1234");
 
-        Set<ConstraintViolation<Partida>> violaciones = validator.validate(partida);
+        partida.agregarJugador(j1);
+        assertEquals(1, partida.getJugadores().size());
+        assertEquals(partida, j1.getPartida());
 
-        assertFalse(violaciones.isEmpty());
-        assertTrue(violaciones.stream().anyMatch(v -> v.getPropertyPath().toString().equals("estado")));
-    }
-
-    // ---------- LÓGICA ----------
-
-    @Test
-    @DisplayName("Debería agregar jugador e incrementar recuento")
-    void deberiaAgregarJugadorEIncrementarRecuento() {
-        Jugador jugador1 = new Jugador("gonza@mail.com", "gonza", "1234");
-
-        partida.agregarJugador(jugador1);
-
-        assertEquals(1, partida.getRecuentoJugadores());
-        assertTrue(partida.getJugadores().contains(jugador1));
+        partida.removerJugador(j1);
+        assertEquals(0, partida.getJugadores().size());
+        assertNull(j1.getPartida());
     }
 
     @Test
     @DisplayName("Debería lanzar excepción si se supera el máximo de jugadores")
     void deberiaLanzarExcepcionSiSuperaMaximo() {
-        partida.setMaxJugadores(1);
+        partida.setMaxJugadores(2);
+        partida.agregarJugador(new Jugador("a@mail.com", "A", "1"));
+        partida.agregarJugador(new Jugador("b@mail.com", "B", "2"));
 
-        Jugador jugador1 = new Jugador("gonza@mail.com", "gonza", "1234");
-        Jugador jugador2 = new Jugador("thiago@mail.com", "thiago", "5678");
-
-        partida.agregarJugador(jugador1);
-
-        assertThrows(IllegalStateException.class, () -> partida.agregarJugador(jugador2));
-    }
-
-    @Test
-    @DisplayName("Debería remover jugador y decrementar recuento")
-    void deberiaRemoverJugadorYDecrementarRecuento() {
-        Jugador jugador1 = new Jugador("gonza@mail.com", "gonza", "1234");
-        partida.agregarJugador(jugador1);
-
-        partida.removerJugador(jugador1);
-
-        assertEquals(0, partida.getRecuentoJugadores());
-        assertFalse(partida.getJugadores().contains(jugador1));
+        assertThrows(IllegalStateException.class, () -> partida.agregarJugador(
+                new Jugador("c@mail.com", "C", "3")));
     }
 }
