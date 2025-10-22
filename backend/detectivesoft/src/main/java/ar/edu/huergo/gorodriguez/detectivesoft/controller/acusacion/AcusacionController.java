@@ -27,16 +27,15 @@ public class AcusacionController {
     
     private final AcusacionService acusacionService;
 
-    //Crear Acusacion
     @PostMapping
     public ResponseEntity<?> crearAcusacion(@Valid @RequestBody AcusacionDto dto) {
         try {
             AcusacionDto creada = acusacionService.crearAcusacion(dto);
 
             if (Boolean.TRUE.equals(creada.getCorrecta())) {
-                return ResponseEntity.ok(new MensajeDto("🎉 ¡Acusación correcta! Ganaste la partida."));
+                return ResponseEntity.ok(new MensajeDto("¡Acusación correcta! Ganaste la partida."));
             } else {
-                return ResponseEntity.ok(new MensajeDto("❌ Acusación incorrecta. Quedás fuera de la partida."));
+                return ResponseEntity.ok(new MensajeDto("Acusación incorrecta. Quedás fuera de la partida."));
             }
 
         } catch (IllegalStateException e) {
@@ -44,26 +43,21 @@ public class AcusacionController {
         }
     }
 
-
-    // Obtener todas las acusaciones
     @GetMapping
     public ResponseEntity<List<AcusacionDto>> obtenerTodas() {
         return ResponseEntity.ok(acusacionService.obtenerTodas());
     }
 
-    // Obtener acusaciones por partida
     @GetMapping("/partida/{partidaId}")
     public ResponseEntity<List<AcusacionDto>> obtenerPorPartida(@PathVariable("partidaId") Long partidaId) {
         return ResponseEntity.ok(acusacionService.obtenerPorPartida(partidaId));
     }
 
-    // Obtener acusaciones por jugador
     @GetMapping("/jugador/{jugadorId}")
     public ResponseEntity<List<AcusacionDto>> obtenerPorJugador(@PathVariable("jugadorId") Long jugadorId) {
         return ResponseEntity.ok(acusacionService.obtenerPorJugador(jugadorId));
     }
 
-    //Eliminar Acusacion
     @DeleteMapping("/{id}")
     public ResponseEntity<MensajeDto> eliminarAcusacion(@PathVariable("id") Long id){
         acusacionService.eliminarAcusacion(id);

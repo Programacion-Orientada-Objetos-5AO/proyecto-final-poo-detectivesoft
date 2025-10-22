@@ -61,7 +61,6 @@ public class Partida {
     @Column(nullable = false)
     private int recuentoJugadores = 0;
 
-    // Métodos utilitarios
     public void agregarJugador(Jugador jugador) {
         if (recuentoJugadores >= maxJugadores) {
             throw new IllegalStateException("La partida ya alcanzó el máximo de jugadores (" + maxJugadores + ")");

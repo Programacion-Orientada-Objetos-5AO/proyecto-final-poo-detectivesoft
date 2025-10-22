@@ -28,23 +28,18 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody @Valid LoginDto request) {
-        // 1) Autenticar credenciales con email/password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.email(), request.password()));
 
-        // 2) Cargar UserDetails usando el email
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.email());
 
-        // 3) Extraer roles
         List<String> roles = userDetails.getAuthorities()
                                         .stream()
                                         .map(a -> a.getAuthority())
                                         .toList();
 
-        // 4) Generar token con el email como subject
         String token = jwtTokenService.generarToken(userDetails, roles);
 
-        // 5) Devolver token
         return ResponseEntity.ok(Map.of("token", token));
     }
 }

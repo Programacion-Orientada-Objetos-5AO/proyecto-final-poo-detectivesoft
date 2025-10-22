@@ -156,7 +156,6 @@ public class PartidaServiceImpl implements PartidaService {
 
         partida.setEstado(EstadoPartida.EN_CURSO);
 
-        // Obtener y separar cartas
         List<Carta> cartas = cartaRepository.findByPartidaIsNull();
         if (cartas.isEmpty()) {
             throw new IllegalStateException("No hay cartas disponibles para repartir");
@@ -198,7 +197,6 @@ public class PartidaServiceImpl implements PartidaService {
             index++;
         }
 
-        // Jugador inicial aleatorio
         Jugador jugadorInicial = partida.getJugadores().get(random.nextInt(numJugadores));
 
         Turno primerTurno = new Turno();
@@ -215,7 +213,6 @@ public class PartidaServiceImpl implements PartidaService {
         partida.getTurnos().add(primerTurno);
         partidaRepository.save(partida);
 
-        // Crear anotadores para cada jugador en la partida
         anotadorService.crearAnotadoresParaPartida(partida);
 
         log.info("Partida {} iniciada con {} jugadores", partida.getCodigo(), partida.getJugadores().size());
@@ -238,7 +235,6 @@ public class PartidaServiceImpl implements PartidaService {
         estado.put("maxJugadores", partida.getMaxJugadores());
         estado.put("recuentoJugadores", partida.getJugadores().size());
 
-        // Jugadores
         estado.put("jugadores", partida.getJugadores().stream()
                 .map(j -> Map.of(
                         "id", j.getId(),
@@ -247,7 +243,6 @@ public class PartidaServiceImpl implements PartidaService {
                 ))
                 .toList());
 
-        // Turno actual
         estado.put("turnoActual", partida.getTurnoActual() != null
                 ? Map.of(
                     "numeroTurno", partida.getTurnoActual().getNumeroTurno(),
@@ -255,7 +250,6 @@ public class PartidaServiceImpl implements PartidaService {
                 )
                 : null);
 
-        // Culpables
         estado.put("culpables", Map.of(
                 "arma", partida.getCartaCulpableArma() != null ? partida.getCartaCulpableArma().getNombre() : null,
                 "habitacion", partida.getCartaCulpableHabitacion() != null ? partida.getCartaCulpableHabitacion().getNombre() : null,

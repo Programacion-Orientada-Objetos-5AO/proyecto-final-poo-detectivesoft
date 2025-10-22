@@ -23,17 +23,14 @@ public class Anotador {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Jugador al que pertenece este anotador
     @ManyToOne
     @JoinColumn(name = "jugador_id", nullable = false)
     private Jugador jugador;
 
-    // Partida a la que pertenece este anotador
     @ManyToOne
     @JoinColumn(name = "partida_id", nullable = false)
     private Partida partida;
 
-    // Lista de IDs de cartas descartadas
     @ElementCollection
     @CollectionTable(name = "anotador_cartas_descartadas", joinColumns = @JoinColumn(name = "anotador_id"))
     @Column(name = "carta_id")

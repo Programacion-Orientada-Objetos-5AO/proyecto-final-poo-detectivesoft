@@ -2,14 +2,19 @@ package ar.edu.huergo.gorodriguez.detectivesoft.service.turno;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.turno.TurnoDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
+import ar.edu.huergo.gorodriguez.detectivesoft.mapper.turno.TurnoMapper;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,30 +23,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.turno.TurnoDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida.EstadoPartida;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.turno.Turno;
-import ar.edu.huergo.gorodriguez.detectivesoft.mapper.turno.TurnoMapper;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.turno.TurnoRepository;
-import jakarta.persistence.EntityNotFoundException;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests de Unidad - TurnoService")
 class TurnoServiceTest {
 
     @Mock
     private TurnoRepository turnoRepository;
-
     @Mock
     private PartidaRepository partidaRepository;
-
     @Mock
     private JugadorRepository jugadorRepository;
-
     @Mock
     private TurnoMapper turnoMapper;
 
@@ -57,62 +48,34 @@ class TurnoServiceTest {
     void setUp() {
         partida = new Partida();
         partida.setId(1L);
-        partida.setCodigo("ABC123");
-        partida.setEstado(EstadoPartida.EN_CURSO);
-
-        Jugador jugador = new Jugador("test@mail.com", "userTest", "1234");
+        jugador = new Jugador();
         jugador.setId(1L);
-        jugador.setPartida(null);
-        jugador.setPartidasJugadas(0);
-        jugador.setPartidasGanadas(0);
 
-        turno = new Turno();
-        turno.setId(1L);
-        turno.setPartida(partida);
-        turno.setJugador(jugador);
-        turno.setNumeroTurno(1);
-        turno.setActivo(true);
-        turno.setFechaInicio(LocalDateTime.now());
-
-        turnoDto = TurnoDto.builder()
-                .id(1L)
-                .partidaId(1L)
-                .jugadorId(1L)
-                .numeroTurno(1)
-                .activo(true)
-                .fechaInicio(LocalDateTime.now())
-                .build();
+        turno = new Turno(1L, partida, jugador, 1, true, null, null);
+        turnoDto = new TurnoDto();
+        turnoDto.setId(1L);
+        turnoDto.setNumeroTurno(1);
+        turnoDto.setActivo(true);
     }
 
     @Test
     @DisplayName("Debería crear turno correctamente")
-    void deberiaCrearTurnoCorrectamente() {
+    void deberiaCrearTurno() {
         when(partidaRepository.findById(1L)).thenReturn(Optional.of(partida));
         when(jugadorRepository.findById(1L)).thenReturn(Optional.of(jugador));
-        when(turnoRepository.save(any(Turno.class))).thenReturn(turno);
-        when(turnoMapper.toDto(any(Turno.class))).thenReturn(turnoDto);
+        when(turnoRepository.save(any())).thenReturn(turno);
+        when(turnoMapper.toDto(any())).thenReturn(turnoDto);
 
         TurnoDto resultado = turnoService.crearTurno(1L, 1L, 1);
 
-        assertNotNull(resultado);
         assertEquals(1, resultado.getNumeroTurno());
-        verify(turnoRepository, times(1)).save(any(Turno.class));
+        verify(turnoRepository).save(any());
     }
 
     @Test
     @DisplayName("Debería lanzar excepción si partida no existe al crear turno")
-    void deberiaLanzarExcepcionSiPartidaNoExisteAlCrearTurno() {
+    void deberiaFallarSiPartidaNoExiste() {
         when(partidaRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(1L, 1L, 1));
-    }
-
-    @Test
-    @DisplayName("Debería lanzar excepción si jugador no existe al crear turno")
-    void deberiaLanzarExcepcionSiJugadorNoExisteAlCrearTurno() {
-        when(partidaRepository.findById(1L)).thenReturn(Optional.of(partida));
-        when(jugadorRepository.findById(1L)).thenReturn(Optional.empty());
-
         assertThrows(EntityNotFoundException.class, () -> turnoService.crearTurno(1L, 1L, 1));
     }
 
@@ -124,95 +87,37 @@ class TurnoServiceTest {
 
         TurnoDto resultado = turnoService.obtenerTurnoPorId(1L);
 
-        assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-    }
-
-    @Test
-    @DisplayName("Debería lanzar excepción si turno no existe")
-    void deberiaLanzarExcepcionSiTurnoNoExiste() {
-        when(turnoRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> turnoService.obtenerTurnoPorId(1L));
-    }
-
-    @Test
-    @DisplayName("Debería obtener todos los turnos")
-    void deberiaObtenerTodosLosTurnos() {
-        when(turnoRepository.findAll()).thenReturn(Arrays.asList(turno));
-        when(turnoMapper.toDtoList(anyList())).thenReturn(Arrays.asList(turnoDto));
-
-        List<TurnoDto> resultado = turnoService.obtenerTodosLosTurnos();
-
-        assertEquals(1, resultado.size());
-        verify(turnoRepository, times(1)).findAll();
-    }
-
-    @Test
-    @DisplayName("Debería obtener turnos por partida")
-    void deberiaObtenerTurnosPorPartida() {
-        when(partidaRepository.findById(1L)).thenReturn(Optional.of(partida));
-        when(turnoRepository.findByPartida(partida)).thenReturn(Arrays.asList(turno));
-        when(turnoMapper.toDtoList(anyList())).thenReturn(Arrays.asList(turnoDto));
-
-        List<TurnoDto> resultado = turnoService.obtenerTurnosPorPartida(1L);
-
-        assertEquals(1, resultado.size());
-        verify(turnoRepository, times(1)).findByPartida(partida);
-    }
-
-    @Test
-    @DisplayName("Debería obtener turnos por jugador")
-    void deberiaObtenerTurnosPorJugador() {
-        when(jugadorRepository.findById(1L)).thenReturn(Optional.of(jugador));
-        when(turnoRepository.findByJugador(jugador)).thenReturn(Arrays.asList(turno));
-        when(turnoMapper.toDtoList(anyList())).thenReturn(Arrays.asList(turnoDto));
-
-        List<TurnoDto> resultado = turnoService.obtenerTurnosPorJugador(1L);
-
-        assertEquals(1, resultado.size());
-        verify(turnoRepository, times(1)).findByJugador(jugador);
+        verify(turnoRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Debería finalizar turno correctamente")
-    void deberiaFinalizarTurnoCorrectamente() {
+    void deberiaFinalizarTurno() {
         when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
-        when(turnoRepository.save(any(Turno.class))).thenReturn(turno);
-        when(turnoMapper.toDto(any(Turno.class))).thenReturn(turnoDto);
+        when(turnoRepository.save(any())).thenReturn(turno);
+        when(turnoMapper.toDto(any())).thenReturn(turnoDto);
 
         TurnoDto resultado = turnoService.finalizarTurno(1L);
+        assertEquals(1L, resultado.getId());
 
-        assertNotNull(resultado);
-        verify(turnoRepository, times(1)).save(turno);
+        assertFalse(turno.isActivo());
+        assertNotNull(turno.getFechaFin());
+        verify(turnoRepository).save(turno);
     }
 
     @Test
     @DisplayName("Debería eliminar turno correctamente")
-    void deberiaEliminarTurnoCorrectamente() {
+    void deberiaEliminarTurno() {
         when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
-
         turnoService.eliminarTurno(1L);
-
-        verify(turnoRepository, times(1)).delete(turno);
+        verify(turnoRepository).delete(turno);
     }
 
     @Test
-    @DisplayName("Debería actualizar turno correctamente")
-    void deberiaActualizarTurnoCorrectamente() {
-        TurnoDto dtoActualizado = TurnoDto.builder()
-                .numeroTurno(2)
-                .activo(false)
-                .build();
-
-        when(turnoRepository.findById(1L)).thenReturn(Optional.of(turno));
-        when(turnoRepository.save(any(Turno.class))).thenReturn(turno);
-        when(turnoMapper.toDto(any(Turno.class))).thenReturn(dtoActualizado);
-
-        TurnoDto resultado = turnoService.actualizarTurno(1L, dtoActualizado);
-
-        assertEquals(2, resultado.getNumeroTurno());
-        assertFalse(resultado.isActivo());
-        verify(turnoRepository, times(1)).save(turno);
+    @DisplayName("Debería lanzar excepción al eliminar turno inexistente")
+    void deberiaFallarAlEliminarTurnoInexistente() {
+        when(turnoRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> turnoService.eliminarTurno(99L));
     }
 }

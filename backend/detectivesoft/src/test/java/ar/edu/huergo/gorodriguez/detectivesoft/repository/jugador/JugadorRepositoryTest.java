@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 
 @DataJpaTest
 @DisplayName("Tests de Integración - JugadorRepository")

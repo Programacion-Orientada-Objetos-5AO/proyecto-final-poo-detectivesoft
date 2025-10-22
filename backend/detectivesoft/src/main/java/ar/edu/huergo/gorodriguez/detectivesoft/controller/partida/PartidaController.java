@@ -28,7 +28,6 @@ public class PartidaController {
     private final PartidaService partidaService;
     private final PartidaRepository partidaRepository;
 
-    // Crear partida
     @PostMapping("/crear/{creadorId}")
     public ResponseEntity<?> crearPartida(@PathVariable("creadorId") Long creadorId) {
         PartidaDto partida = partidaService.crearPartida(creadorId);
@@ -36,7 +35,6 @@ public class PartidaController {
                 .body(new MensajeDto("Partida creada correctamente. Código: " + partida.getCodigo()));
     }
 
-    // Unirse a partida
     @PostMapping("/unirse/{codigo}")
     public ResponseEntity<MensajeDto> unirseAPartida(
             @PathVariable("codigo") String codigo ) 
@@ -45,7 +43,6 @@ public class PartidaController {
         return ResponseEntity.ok(new MensajeDto("Te uniste correctamente a la partida."));
     }
 
-    // Listar partidas
     @GetMapping
     public ResponseEntity<?> listarPartidas() {
         List<PartidaDto> partidas = partidaService.listarPartidas();
@@ -55,20 +52,17 @@ public class PartidaController {
         return ResponseEntity.ok(partidas);
     }
 
-    // Obtener partida por ID
     @GetMapping("/{id}")
     public ResponseEntity<PartidaDto> obtenerPartidaPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(partidaService.obtenerPartidaPorId(id));
     }
 
-    // Eliminar partida por ID
     @DeleteMapping("/{id}")
     public ResponseEntity<MensajeDto> eliminarPartida(@PathVariable("id") Long id) {
         partidaService.eliminarPartida(id);
         return ResponseEntity.ok(new MensajeDto("Partida eliminada correctamente."));
     }
 
-    // Eliminar jugador de una partida
     @DeleteMapping("/{partidaId}/jugadores/{jugadorId}")
     public ResponseEntity<MensajeDto> eliminarJugadorDePartida(
             @PathVariable("partidaId") Long partidaId,
@@ -77,7 +71,6 @@ public class PartidaController {
         return ResponseEntity.ok(new MensajeDto("Jugador eliminado correctamente de la partida."));
     }
 
-    // Iniciar partida
     @PostMapping("/{id}/iniciar")
     public ResponseEntity<MensajeDto> iniciarPartida(@PathVariable("id") Long id) {
         partidaService.iniciarPartida(id);
@@ -103,7 +96,6 @@ public class PartidaController {
         ));
     }
 
-    // Obtener el estado completo de una partida
     @GetMapping("/{id}/estado")
     public ResponseEntity<?> obtenerEstadoPartida(@PathVariable Long id) {
         Map<String, Object> estado = partidaService.obtenerEstadoPartida(id);

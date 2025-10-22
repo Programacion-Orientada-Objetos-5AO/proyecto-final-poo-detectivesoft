@@ -2,104 +2,69 @@ package ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador.Anotador;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
-import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Tests de Lógica Básica - Entidad Anotador")
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+
+@DisplayName("Tests de Validación - Entidad Anotador")
 class AnotadorEntityTest {
 
-    @Test
-    @DisplayName("Debería crear un anotador válido con builder")
-    void deberiaCrearAnotadorValidoConBuilder() {
-        Jugador jugador = new Jugador();
-        jugador.setId(1L);
-        jugador.setUsername("testUser");
+    private Validator validator;
+    private Anotador anotador;
+    private Jugador jugador;
+    private Partida partida;
 
-        Partida partida = new Partida();
-        partida.setId(1L);
-        partida.setCodigo("ABC123");
+    @BeforeEach
+    void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
 
-        List<Long> cartasDescartadas = Arrays.asList(1L, 2L, 3L);
+        jugador = new Jugador();
+        partida = new Partida();
 
-        Anotador anotador = Anotador.builder()
-                .id(1L)
+        anotador = Anotador.builder()
                 .jugador(jugador)
                 .partida(partida)
-                .cartasDescartadas(cartasDescartadas)
                 .build();
-
-        assertNotNull(anotador);
-        assertEquals(1L, anotador.getId());
-        assertEquals(jugador, anotador.getJugador());
-        assertEquals(partida, anotador.getPartida());
-        assertEquals(cartasDescartadas, anotador.getCartasDescartadas());
     }
 
     @Test
-    @DisplayName("Debería manejar getters y setters correctamente")
-    void deberiaManejarGettersYSetters() {
-        Anotador anotador = new Anotador();
-
-        Jugador jugador = new Jugador();
-        jugador.setId(2L);
-        anotador.setJugador(jugador);
-
-        Partida partida = new Partida();
-        partida.setId(2L);
-        anotador.setPartida(partida);
-
-        List<Long> cartas = Arrays.asList(4L, 5L);
-        anotador.setCartasDescartadas(cartas);
-
-        assertEquals(jugador, anotador.getJugador());
-        assertEquals(partida, anotador.getPartida());
-        assertEquals(cartas, anotador.getCartasDescartadas());
+    @DisplayName("Debería pasar validación con datos válidos")
+    void deberiaSerValido() {
+        Set<ConstraintViolation<Anotador>> violaciones = validator.validate(anotador);
+        assertTrue(violaciones.isEmpty());
     }
 
     @Test
-    @DisplayName("Debería inicializar lista de cartas descartadas vacía")
-    void deberiaInicializarListaCartasDescartadasVacia() {
-        Anotador anotador = new Anotador();
-
-        assertNotNull(anotador.getCartasDescartadas());
-        assertTrue(anotador.getCartasDescartadas().isEmpty());
+    @DisplayName("Debería fallar si jugador es nulo")
+    void deberiaFallarSiJugadorEsNulo() {
+        anotador.setJugador(null);
+        Set<ConstraintViolation<Anotador>> violaciones = validator.validate(anotador);
+        assertFalse(violaciones.isEmpty());
     }
 
     @Test
-    @DisplayName("Debería agregar y remover cartas de la lista descartadas")
-    void deberiaAgregarYRemoverCartasListaDescartadas() {
-        Anotador anotador = new Anotador();
-        List<Long> cartas = anotador.getCartasDescartadas();
-
-        cartas.add(10L);
-        cartas.add(20L);
-
-        assertEquals(2, cartas.size());
-        assertTrue(cartas.contains(10L));
-        assertTrue(cartas.contains(20L));
-
-        cartas.remove(10L);
-        assertEquals(1, cartas.size());
-        assertFalse(cartas.contains(10L));
+    @DisplayName("Debería fallar si partida es nula")
+    void deberiaFallarSiPartidaEsNula() {
+        anotador.setPartida(null);
+        Set<ConstraintViolation<Anotador>> violaciones = validator.validate(anotador);
+        assertFalse(violaciones.isEmpty());
     }
 
     @Test
-    @DisplayName("Debería crear anotador con constructor vacío")
-    void deberiaCrearAnotadorConConstructorVacio() {
-        Anotador anotador = new Anotador();
-
-        assertNotNull(anotador);
-        assertNull(anotador.getId());
-        assertNull(anotador.getJugador());
-        assertNull(anotador.getPartida());
-        assertNotNull(anotador.getCartasDescartadas());
-        assertTrue(anotador.getCartasDescartadas().isEmpty());
+    @DisplayName("Debería permitir agregar cartas descartadas")
+    void deberiaAgregarCartasDescartadas() {
+        anotador.getCartasDescartadas().add(1L);
+        anotador.getCartasDescartadas().add(2L);
+        assertEquals(2, anotador.getCartasDescartadas().size());
     }
 }
