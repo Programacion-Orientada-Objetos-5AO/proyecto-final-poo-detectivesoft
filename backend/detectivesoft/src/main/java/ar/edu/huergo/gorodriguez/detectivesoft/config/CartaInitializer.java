@@ -41,15 +41,15 @@ public class CartaInitializer {
 
                 // HABITACIONES
                 List<Carta> habitaciones = List.of(
-                        new Carta(null, "Cocina", TipoCarta.HABITACION, "estudio.png", null, null),
-                        new Carta(null, "Comedor", TipoCarta.HABITACION, "entrada.png", null, null),
-                        new Carta(null, "Biblioteca", TipoCarta.HABITACION, "comedor.png", null, null),
-                        new Carta(null, "Sala de Baile", TipoCarta.HABITACION, "sala_estar.png", null, null),
-                        new Carta(null, "Salon", TipoCarta.HABITACION, "cuarto_individual.png", null, null),
-                        new Carta(null, "Invernadero", TipoCarta.HABITACION, "cuarto_matrimonial.png", null, null),
-                        new Carta(null, "Estudio", TipoCarta.HABITACION, "bano.png", null, null),
-                        new Carta(null, "Billar", TipoCarta.HABITACION, "cocina.png", null, null),
-                        new Carta(null, "Vestibulo", TipoCarta.HABITACION, "garaje.png", null, null)
+                        new Carta(null, "Cocina", TipoCarta.HABITACION, "cocina.png", null, null),
+                        new Carta(null, "Comedor", TipoCarta.HABITACION, "comedor.png", null, null),
+                        new Carta(null, "Biblioteca", TipoCarta.HABITACION, "biblioteca.png", null, null),
+                        new Carta(null, "Sala de Baile", TipoCarta.HABITACION, "sala_baile.png", null, null),
+                        new Carta(null, "Salon", TipoCarta.HABITACION, "salon.png", null, null),
+                        new Carta(null, "Invernadero", TipoCarta.HABITACION, "invernadero.png", null, null),
+                        new Carta(null, "Estudio", TipoCarta.HABITACION, "estudio.png", null, null),
+                        new Carta(null, "Billar", TipoCarta.HABITACION, "billar.png", null, null),
+                        new Carta(null, "Vestibulo", TipoCarta.HABITACION, "vestibulo.png", null, null)
                 );
 
                 cartaRepository.saveAll(personajes);
