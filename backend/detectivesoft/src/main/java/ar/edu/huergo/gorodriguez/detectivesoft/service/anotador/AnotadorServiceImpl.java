@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.anotador.AnotadorDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.carta.CartaResumenDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador.Anotador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
@@ -43,19 +44,38 @@ public class AnotadorServiceImpl implements AnotadorService {
         anotador.setJugador(jugador);
         anotador.setPartida(partida);
 
-        return anotadorMapper.toDto(anotadorRepository.save(anotador));
+        anotador = anotadorRepository.save(anotador);
+
+        List<CartaResumenDto> cartasJugador = jugador.getCartas().stream()
+                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
+                .toList();
+
+        return anotadorMapper.toDto(anotador, cartasJugador);
     }
 
     @Override
     public AnotadorDto obtenerPorId(Long id) {
         Anotador anotador = anotadorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado"));
-        return anotadorMapper.toDto(anotador);
+
+        List<CartaResumenDto> cartas = anotador.getJugador().getCartas().stream()
+                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
+                .toList();
+
+        return anotadorMapper.toDto(anotador, cartas);
     }
 
     @Override
     public List<AnotadorDto> listarPorPartida(Long partidaId) {
-        return anotadorMapper.toDtoList(anotadorRepository.findByPartidaId(partidaId));
+        List<Anotador> anotadores = anotadorRepository.findByPartidaId(partidaId);
+
+        List<List<CartaResumenDto>> cartasPorAnotador = anotadores.stream()
+                .map(a -> a.getJugador().getCartas().stream()
+                        .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
+                        .toList())
+                .toList();
+
+        return anotadorMapper.toDtoList(anotadores, cartasPorAnotador);
     }
 
     @Override
@@ -67,14 +87,20 @@ public class AnotadorServiceImpl implements AnotadorService {
         String email = auth.getName();
 
         Jugador jugador = jugadorRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
 
         if (!anotador.getJugador().getId().equals(jugador.getId())) {
-            throw new IllegalStateException("No puedes editar el anotador de otro jugador.");
+            throw new IllegalStateException("No puedes editar un anotador ajeno.");
         }
 
         anotador.setCartasDescartadas(nuevasCartasDescartadas);
-        return anotadorMapper.toDto(anotadorRepository.save(anotador));
+        anotadorRepository.save(anotador);
+
+        List<CartaResumenDto> cartasActuales = jugador.getCartas().stream()
+                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
+                .toList();
+
+        return anotadorMapper.toDto(anotador, cartasActuales);
     }
 
 

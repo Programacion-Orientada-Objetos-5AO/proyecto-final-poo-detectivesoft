@@ -16,5 +16,6 @@ public class AnotadorDto {
     private Long id;
     private Long jugadorId;
     private Long partidaId;
+    private String jugadorNombre;
     private List<CartaResumenDto> cartasDescartadas;
 }
