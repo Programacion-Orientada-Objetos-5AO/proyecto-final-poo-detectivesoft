@@ -1,0 +1,383 @@
+{
+	"info": {
+		"_postman_id": "cf40d2d6-60d8-49a3-8607-a81e4d884943",
+		"name": "Flujo del Juego",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47514696",
+		"_collection_link": "https://gorodriguez-6088037b-3280855.postman.co/workspace/Gonzalo-RODRIGUEZ's-Workspace~bce8b2a6-2244-4892-866c-5a56cf998396/collection/47514696-cf40d2d6-60d8-49a3-8607-a81e4d884943?action=share&source=collection_link&creator=47514696"
+	},
+	"item": [
+		{
+			"name": "Registrar Jugador1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jugador1@example.com\",\r\n  \"username\": \"jugador1\",\r\n  \"password\": \"PasswordSeguroJugador1!\",\r\n  \"verificacionPassword\": \"PasswordSeguroJugador1!\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/jugadores/registrar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"jugadores",
+						"registrar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Registrar Jugador2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jugador2@example.com\",\r\n  \"username\": \"jugador2\",\r\n  \"password\": \"PasswordSeguroJugador2!\",\r\n  \"verificacionPassword\": \"PasswordSeguroJugador2!\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/jugadores/registrar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"jugadores",
+						"registrar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logear Jugador1",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jugador1@example.com\",\r\n  \"password\": \"PasswordSeguroJugador1!\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logear Jugador2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jugador2@example.com\",\r\n  \"password\": \"PasswordSeguroJugador2!\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Partida Jugador1",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/partidas/crear/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"partidas",
+						"crear",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unirse a Partida Jugador2",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/partidas/unirse/{codigo-partida}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"partidas",
+						"unirse",
+						"{codigo-partida}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Iniciar Partida Jugador1",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/partidas/1/iniciar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"partidas",
+						"1",
+						"iniciar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Anotador Jugador1",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/anotadores/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"anotadores",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Anotador Jugador2",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/anotadores/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"anotadores",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Turno Actual",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/partidas/1/turno-actual",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"partidas",
+						"1",
+						"turno-actual"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Estado de la Partida",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/partidas/1/estado",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"partidas",
+						"1",
+						"estado"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Sospecha",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"partidaId\": 1,\r\n  \"personajeId\": 2,\r\n  \"armaId\": 6,\r\n  \"habitacionId\": 14\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/sospechas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"sospechas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Acusacion",
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"partidaId\": 1,\r\n  \"personajeId\": 2,\r\n  \"armaId\": 6,\r\n  \"habitacionId\": 14\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/acusaciones",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"acusaciones"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
