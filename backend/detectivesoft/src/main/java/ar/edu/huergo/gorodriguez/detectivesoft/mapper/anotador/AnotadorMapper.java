@@ -16,7 +16,7 @@ public class AnotadorMapper {
         if (anotador == null) return null;
 
         List<CartaResumenDto> cartasDto = anotador.getCartasDescartadas().stream()
-                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
+                .map(c -> new CartaResumenDto(c.getId(), c.getNombre()))
                 .collect(Collectors.toList());
 
         return AnotadorDto.builder()

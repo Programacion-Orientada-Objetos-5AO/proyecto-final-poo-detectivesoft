@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.dto.carta.CartaResumenDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.partida.PartidaDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta.TipoCarta;
@@ -251,9 +252,15 @@ public class PartidaServiceImpl implements PartidaService {
                 : null);
 
         estado.put("culpables", Map.of(
-                "arma", partida.getCartaCulpableArma() != null ? partida.getCartaCulpableArma().getNombre() : null,
-                "habitacion", partida.getCartaCulpableHabitacion() != null ? partida.getCartaCulpableHabitacion().getNombre() : null,
-                "personaje", partida.getCartaCulpablePersonaje() != null ? partida.getCartaCulpablePersonaje().getNombre() : null
+                "arma", partida.getCartaCulpableArma() != null
+                        ? new CartaResumenDto(partida.getCartaCulpableArma().getId(), partida.getCartaCulpableArma().getNombre())
+                        : null,
+                "habitacion", partida.getCartaCulpableHabitacion() != null
+                        ? new CartaResumenDto(partida.getCartaCulpableHabitacion().getId(), partida.getCartaCulpableHabitacion().getNombre())
+                        : null,
+                "personaje", partida.getCartaCulpablePersonaje() != null
+                        ? new CartaResumenDto(partida.getCartaCulpablePersonaje().getId(), partida.getCartaCulpablePersonaje().getNombre())
+                        : null
         ));
 
         return estado;
