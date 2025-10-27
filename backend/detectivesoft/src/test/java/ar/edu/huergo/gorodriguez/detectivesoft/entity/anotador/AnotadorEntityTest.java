@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import jakarta.validation.ConstraintViolation;
@@ -63,8 +64,13 @@ class AnotadorEntityTest {
     @Test
     @DisplayName("Debería permitir agregar cartas descartadas")
     void deberiaAgregarCartasDescartadas() {
-        anotador.getCartasDescartadas().add(1L);
-        anotador.getCartasDescartadas().add(2L);
+        Carta carta1 = new Carta();
+        Carta carta2 = new Carta();
+        anotador.getCartasDescartadas().add(carta1);
+        anotador.getCartasDescartadas().add(carta2);
+
         assertEquals(2, anotador.getCartasDescartadas().size());
+        assertTrue(anotador.getCartasDescartadas().contains(carta1));
+        assertTrue(anotador.getCartasDescartadas().contains(carta2));
     }
 }

@@ -8,20 +8,22 @@ import java.util.Optional;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.anotador.AnotadorDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador.Anotador;
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.anotador.AnotadorMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.anotador.AnotadorRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests de Unidad - AnotadorService")
@@ -33,6 +35,8 @@ class AnotadorServiceTest {
     private JugadorRepository jugadorRepository;
     @Mock
     private PartidaRepository partidaRepository;
+    @Mock
+    private CartaRepository cartaRepository;
     @Mock
     private AnotadorMapper anotadorMapper;
 
@@ -59,7 +63,7 @@ class AnotadorServiceTest {
                 .id(10L)
                 .jugador(jugador)
                 .partida(partida)
-                .cartasDescartadas(List.of(1L, 2L))
+                .cartasDescartadas(List.of(new Carta(), new Carta()))
                 .build();
 
         dto = new AnotadorDto();
@@ -71,13 +75,14 @@ class AnotadorServiceTest {
     void deberiaCrearAnotador() {
         when(jugadorRepository.findById(1L)).thenReturn(Optional.of(jugador));
         when(partidaRepository.findById(2L)).thenReturn(Optional.of(partida));
-        when(anotadorRepository.save(any())).thenReturn(anotador);
-        when(anotadorMapper.toDto(any())).thenReturn(dto);
+        when(anotadorRepository.save(any(Anotador.class))).thenReturn(anotador);
+        when(anotadorMapper.toDto(any(Anotador.class))).thenReturn(dto);
 
         AnotadorDto resultado = anotadorService.crearAnotador(1L, 2L);
 
         assertNotNull(resultado);
-        verify(anotadorRepository).save(any());
+        assertEquals(10L, resultado.getId());
+        verify(anotadorRepository).save(any(Anotador.class));
     }
 
     @Test
@@ -91,7 +96,7 @@ class AnotadorServiceTest {
     @DisplayName("Debería obtener anotador por ID")
     void deberiaObtenerPorId() {
         when(anotadorRepository.findById(10L)).thenReturn(Optional.of(anotador));
-        when(anotadorMapper.toDto(any())).thenReturn(dto);
+        when(anotadorMapper.toDto(any(Anotador.class))).thenReturn(dto);
 
         AnotadorDto resultado = anotadorService.obtenerPorId(10L);
 
@@ -102,7 +107,7 @@ class AnotadorServiceTest {
     @DisplayName("Debería listar anotadores por partida")
     void deberiaListarPorPartida() {
         when(anotadorRepository.findByPartidaId(2L)).thenReturn(List.of(anotador));
-        when(anotadorMapper.toDtoList(any())).thenReturn(List.of(dto));
+        when(anotadorMapper.toDtoList(anyList())).thenReturn(List.of(dto));
 
         List<AnotadorDto> lista = anotadorService.listarPorPartida(2L);
 
@@ -113,7 +118,9 @@ class AnotadorServiceTest {
     @DisplayName("Debería eliminar anotador correctamente")
     void deberiaEliminarAnotador() {
         when(anotadorRepository.existsById(10L)).thenReturn(true);
+
         anotadorService.eliminarAnotador(10L);
+
         verify(anotadorRepository).deleteById(10L);
     }
 
@@ -121,6 +128,60 @@ class AnotadorServiceTest {
     @DisplayName("Debería lanzar excepción si anotador no existe al eliminar")
     void deberiaFallarSiNoExisteAlEliminar() {
         when(anotadorRepository.existsById(10L)).thenReturn(false);
+
         assertThrows(EntityNotFoundException.class, () -> anotadorService.eliminarAnotador(10L));
+    }
+
+    @Test
+    @DisplayName("Debería actualizar cartas descartadas correctamente")
+    void deberiaActualizarCartasDescartadas() {
+        List<Long> nuevasCartasDescartadas = List.of(1L, 2L);
+        Carta carta1 = new Carta();
+        Carta carta2 = new Carta();
+
+        when(anotadorRepository.findById(10L)).thenReturn(Optional.of(anotador));
+        when(cartaRepository.findById(1L)).thenReturn(Optional.of(carta1));
+        when(cartaRepository.findById(2L)).thenReturn(Optional.of(carta2));
+        when(anotadorMapper.toDto(any(Anotador.class))).thenReturn(dto);
+
+        AnotadorDto resultado = anotadorService.actualizarCartasDescartadas(10L, nuevasCartasDescartadas);
+
+        assertNotNull(resultado);
+        assertEquals(10L, resultado.getId());
+        verify(anotadorRepository).save(any(Anotador.class));
+    }
+
+    @Test
+    @DisplayName("Debería lanzar excepción si no puedes editar anotador de otro jugador")
+    void deberiaFallarSiNoPuedesEditarOtroJugador() {
+        List<Long> nuevasCartasDescartadas = List.of(1L, 2L);
+
+        when(anotadorRepository.findById(10L)).thenReturn(Optional.of(anotador));
+        when(jugadorRepository.findByEmail(anyString())).thenReturn(Optional.of(new Jugador()));
+
+        assertThrows(IllegalStateException.class, () -> anotadorService.actualizarCartasDescartadas(10L, nuevasCartasDescartadas));
+    }
+
+    @Test
+    @DisplayName("Debería marcar carta como descartada correctamente")
+    void deberiaMarcarCartaComoDescartada() {
+        Carta carta = new Carta();
+        carta.setId(1L);
+        when(anotadorRepository.findByJugadorId(1L)).thenReturn(Optional.of(anotador));
+        when(cartaRepository.findById(1L)).thenReturn(Optional.of(carta));
+
+        anotadorService.marcarCartaComoDescartada(1L, 1L);
+
+        assertTrue(anotador.getCartasDescartadas().contains(carta));
+        verify(anotadorRepository).save(any(Anotador.class));
+    }
+
+    @Test
+    @DisplayName("Debería lanzar excepción si carta no encontrada al marcar como descartada")
+    void deberiaFallarSiCartaNoEncontrada() {
+        when(anotadorRepository.findByJugadorId(1L)).thenReturn(Optional.of(anotador));
+        when(cartaRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> anotadorService.marcarCartaComoDescartada(1L, 1L));
     }
 }
