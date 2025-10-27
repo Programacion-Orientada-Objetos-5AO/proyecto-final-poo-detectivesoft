@@ -15,7 +15,6 @@ import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.anotador.AnotadorMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.anotador.AnotadorRepository;
-import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,7 +30,6 @@ public class AnotadorServiceImpl implements AnotadorService {
     private final AnotadorRepository anotadorRepository;
     private final JugadorRepository jugadorRepository;
     private final PartidaRepository partidaRepository;
-    private final CartaRepository cartaRepository;
     private final AnotadorMapper anotadorMapper;
 
     @Override
@@ -45,26 +43,19 @@ public class AnotadorServiceImpl implements AnotadorService {
         anotador.setJugador(jugador);
         anotador.setPartida(partida);
 
-        return anotadorMapper.toDto(anotador, List.of());
+        return anotadorMapper.toDto(anotadorRepository.save(anotador));
     }
 
     @Override
     public AnotadorDto obtenerPorId(Long id) {
         Anotador anotador = anotadorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado"));
-        List<Carta> cartas = cartaRepository.findAllById(anotador.getCartasDescartadas());
-        return anotadorMapper.toDto(anotador, cartas);
+        return anotadorMapper.toDto(anotador);
     }
 
     @Override
     public List<AnotadorDto> listarPorPartida(Long partidaId) {
-        List<Anotador> anotadores = anotadorRepository.findByPartidaId(partidaId);
-
-        List<List<Carta>> cartasPorAnotador = anotadores.stream()
-                .map(a -> cartaRepository.findAllById(a.getCartasDescartadas()))
-                .collect(Collectors.toList());
-
-        return anotadorMapper.toDtoList(anotadores, cartasPorAnotador);
+        return anotadorMapper.toDtoList(anotadorRepository.findByPartidaId(partidaId));
     }
 
     @Override
@@ -73,7 +64,9 @@ public class AnotadorServiceImpl implements AnotadorService {
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado"));
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Jugador jugador = jugadorRepository.findByEmail(auth.getName())
+        String email = auth.getName();
+
+        Jugador jugador = jugadorRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
 
         if (!anotador.getJugador().getId().equals(jugador.getId())) {
@@ -81,10 +74,7 @@ public class AnotadorServiceImpl implements AnotadorService {
         }
 
         anotador.setCartasDescartadas(nuevasCartasDescartadas);
-        anotadorRepository.save(anotador);
-
-        List<Carta> cartas = cartaRepository.findAllById(nuevasCartasDescartadas);
-        return anotadorMapper.toDto(anotador, cartas);
+        return anotadorMapper.toDto(anotadorRepository.save(anotador));
     }
 
 
@@ -120,6 +110,7 @@ public class AnotadorServiceImpl implements AnotadorService {
         if (!anotador.getCartasDescartadas().contains(cartaId)) {
             anotador.getCartasDescartadas().add(cartaId);
             anotadorRepository.save(anotador);
+            log.info("Carta {} marcada como descartada en el anotador del jugador {}", cartaId, jugadorId);
         }
     }
 

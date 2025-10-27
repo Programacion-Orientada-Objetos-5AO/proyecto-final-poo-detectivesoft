@@ -25,7 +25,7 @@ public class AnotadorMapper {
         return AnotadorDto.builder()
                 .id(anotador.getId())
                 .jugadorId(anotador.getJugador() != null ? anotador.getJugador().getId() : null)
-                .jugadorNombre(anotador.getJugador() != null ? anotador.getJugador().getUsername() : null)
+                .jugadorUsername(anotador.getJugador() != null ? anotador.getJugador().getUsername() : null)
                 .partidaId(anotador.getPartida() != null ? anotador.getPartida().getId() : null)
                 .cartasDescartadas(cartasDto)
                 .build();
