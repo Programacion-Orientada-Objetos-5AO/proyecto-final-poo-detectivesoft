@@ -20,5 +20,4 @@ public interface AnotadorService {
     void crearAnotadoresParaPartida(Partida partida);
 
     void marcarCartaComoDescartada(Long jugadorId, Long cartaId);
-    
 }

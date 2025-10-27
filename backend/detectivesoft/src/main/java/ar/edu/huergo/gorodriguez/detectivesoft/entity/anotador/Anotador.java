@@ -3,6 +3,7 @@ package ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador;
 import java.util.ArrayList;
 import java.util.List;
 
+import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import jakarta.persistence.*;
@@ -31,8 +32,11 @@ public class Anotador {
     @JoinColumn(name = "partida_id", nullable = false)
     private Partida partida;
 
-    @ElementCollection
-    @CollectionTable(name = "anotador_cartas_descartadas", joinColumns = @JoinColumn(name = "anotador_id"))
-    @Column(name = "carta_id")
-    private List<Long> cartasDescartadas = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+        name = "anotador_cartas_descartadas",
+        joinColumns = @JoinColumn(name = "anotador_id"),
+        inverseJoinColumns = @JoinColumn(name = "carta_id")
+    )
+    private List<Carta> cartasDescartadas = new ArrayList<>();
 }

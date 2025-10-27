@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.anotador.AnotadorDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.carta.CartaResumenDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.anotador.Anotador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.carta.Carta;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.jugador.Jugador;
 import ar.edu.huergo.gorodriguez.detectivesoft.entity.partida.Partida;
 import ar.edu.huergo.gorodriguez.detectivesoft.mapper.anotador.AnotadorMapper;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.anotador.AnotadorRepository;
+import ar.edu.huergo.gorodriguez.detectivesoft.repository.carta.CartaRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.jugador.JugadorRepository;
 import ar.edu.huergo.gorodriguez.detectivesoft.repository.partida.PartidaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,16 +24,17 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-
 @Slf4j
 public class AnotadorServiceImpl implements AnotadorService {
 
     private final AnotadorRepository anotadorRepository;
     private final JugadorRepository jugadorRepository;
     private final PartidaRepository partidaRepository;
+    private final CartaRepository cartaRepository;
     private final AnotadorMapper anotadorMapper;
 
     @Override
+    @Transactional
     public AnotadorDto crearAnotador(Long jugadorId, Long partidaId) {
         Jugador jugador = jugadorRepository.findById(jugadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
@@ -43,42 +44,25 @@ public class AnotadorServiceImpl implements AnotadorService {
         Anotador anotador = new Anotador();
         anotador.setJugador(jugador);
         anotador.setPartida(partida);
+        anotador.setCartasDescartadas(List.of());
 
-        anotador = anotadorRepository.save(anotador);
-
-        List<CartaResumenDto> cartasJugador = jugador.getCartas().stream()
-                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
-                .toList();
-
-        return anotadorMapper.toDto(anotador, cartasJugador);
+        return anotadorMapper.toDto(anotadorRepository.save(anotador));
     }
 
     @Override
     public AnotadorDto obtenerPorId(Long id) {
         Anotador anotador = anotadorRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado"));
-
-        List<CartaResumenDto> cartas = anotador.getJugador().getCartas().stream()
-                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
-                .toList();
-
-        return anotadorMapper.toDto(anotador, cartas);
+        return anotadorMapper.toDto(anotador);
     }
 
     @Override
     public List<AnotadorDto> listarPorPartida(Long partidaId) {
-        List<Anotador> anotadores = anotadorRepository.findByPartidaId(partidaId);
-
-        List<List<CartaResumenDto>> cartasPorAnotador = anotadores.stream()
-                .map(a -> a.getJugador().getCartas().stream()
-                        .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
-                        .toList())
-                .toList();
-
-        return anotadorMapper.toDtoList(anotadores, cartasPorAnotador);
+        return anotadorMapper.toDtoList(anotadorRepository.findByPartidaId(partidaId));
     }
 
     @Override
+    @Transactional
     public AnotadorDto actualizarCartasDescartadas(Long anotadorId, List<Long> nuevasCartasDescartadas) {
         Anotador anotador = anotadorRepository.findById(anotadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado"));
@@ -87,22 +71,22 @@ public class AnotadorServiceImpl implements AnotadorService {
         String email = auth.getName();
 
         Jugador jugador = jugadorRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Jugador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Jugador autenticado no encontrado"));
 
         if (!anotador.getJugador().getId().equals(jugador.getId())) {
-            throw new IllegalStateException("No puedes editar un anotador ajeno.");
+            throw new IllegalStateException("No puedes editar el anotador de otro jugador.");
         }
 
-        anotador.setCartasDescartadas(nuevasCartasDescartadas);
+        List<Carta> nuevasCartas = nuevasCartasDescartadas.stream()
+                .map(id -> cartaRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("Carta no encontrada: " + id)))
+                .collect(Collectors.toList());
+
+        anotador.setCartasDescartadas(nuevasCartas);
         anotadorRepository.save(anotador);
 
-        List<CartaResumenDto> cartasActuales = jugador.getCartas().stream()
-                .map(c -> new CartaResumenDto(c.getId(), c.getNombre(), c.getTipo().name()))
-                .toList();
-
-        return anotadorMapper.toDto(anotador, cartasActuales);
+        return anotadorMapper.toDto(anotador);
     }
-
 
     @Override
     public void eliminarAnotador(Long id) {
@@ -112,32 +96,31 @@ public class AnotadorServiceImpl implements AnotadorService {
         anotadorRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional
     public void crearAnotadoresParaPartida(Partida partida) {
         for (Jugador jugador : partida.getJugadores()) {
             Anotador anotador = new Anotador();
             anotador.setJugador(jugador);
             anotador.setPartida(partida);
-
-            List<Long> cartasJugador = jugador.getCartas()
-                    .stream()
-                    .map(Carta::getId)
-                    .collect(Collectors.toList());
-            anotador.setCartasDescartadas(cartasJugador);
-
+            anotador.setCartasDescartadas(new java.util.ArrayList<>(jugador.getCartas()));
             anotadorRepository.save(anotador);
         }
     }
 
+    @Override
     @Transactional
     public void marcarCartaComoDescartada(Long jugadorId, Long cartaId) {
         Anotador anotador = anotadorRepository.findByJugadorId(jugadorId)
                 .orElseThrow(() -> new EntityNotFoundException("Anotador no encontrado para el jugador"));
 
-        if (!anotador.getCartasDescartadas().contains(cartaId)) {
-            anotador.getCartasDescartadas().add(cartaId);
+        Carta carta = cartaRepository.findById(cartaId)
+                .orElseThrow(() -> new EntityNotFoundException("Carta no encontrada"));
+
+        if (!anotador.getCartasDescartadas().contains(carta)) {
+            anotador.getCartasDescartadas().add(carta);
             anotadorRepository.save(anotador);
-            log.info("Carta {} marcada como descartada en el anotador del jugador {}", cartaId, jugadorId);
+            log.info("Carta {} marcada como descartada en el anotador del jugador {}", carta.getNombre(), jugadorId);
         }
     }
-
 }

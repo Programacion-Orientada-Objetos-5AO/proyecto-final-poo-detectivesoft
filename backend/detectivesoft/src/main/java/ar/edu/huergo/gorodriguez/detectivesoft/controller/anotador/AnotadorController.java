@@ -2,19 +2,16 @@ package ar.edu.huergo.gorodriguez.detectivesoft.controller.anotador;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import ar.edu.huergo.gorodriguez.detectivesoft.dto.anotador.AnotadorDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.dto.security.MensajeDto;
 import ar.edu.huergo.gorodriguez.detectivesoft.service.anotador.AnotadorService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/anotadores")
+@RequiredArgsConstructor
 public class AnotadorController {
 
     private final AnotadorService anotadorService;
@@ -23,8 +20,7 @@ public class AnotadorController {
     public ResponseEntity<AnotadorDto> crearAnotador(
             @PathVariable("jugadorId") Long jugadorId,
             @PathVariable("partidaId") Long partidaId) {
-        AnotadorDto nuevoAnotador = anotadorService.crearAnotador(jugadorId, partidaId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoAnotador);
+        return ResponseEntity.ok(anotadorService.crearAnotador(jugadorId, partidaId));
     }
 
     @GetMapping("/{id}")
@@ -34,20 +30,27 @@ public class AnotadorController {
 
     @GetMapping("/partida/{partidaId}")
     public ResponseEntity<List<AnotadorDto>> listarPorPartida(@PathVariable("partidaId") Long partidaId) {
-        List<AnotadorDto> anotadores = anotadorService.listarPorPartida(partidaId);
-        return ResponseEntity.ok(anotadores);
+        return ResponseEntity.ok(anotadorService.listarPorPartida(partidaId));
     }
 
-    @PutMapping("/{anotadorId}/descartadas")
+    @PutMapping("/{anotadorId}/cartas")
     public ResponseEntity<AnotadorDto> actualizarCartasDescartadas(
             @PathVariable("anotadorId") Long anotadorId,
-            @Valid @RequestBody List<Long> nuevasCartasDescartadas) {
+            @RequestBody List<Long> nuevasCartasDescartadas) {
         return ResponseEntity.ok(anotadorService.actualizarCartasDescartadas(anotadorId, nuevasCartasDescartadas));
     }
 
+    @PostMapping("/{jugadorId}/descartar/{cartaId}")
+    public ResponseEntity<Void> marcarCartaComoDescartada(
+            @PathVariable Long jugadorId,
+            @PathVariable Long cartaId) {
+        anotadorService.marcarCartaComoDescartada(jugadorId, cartaId);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<MensajeDto> eliminarAnotador(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> eliminarAnotador(@PathVariable("id") Long id) {
         anotadorService.eliminarAnotador(id);
-        return ResponseEntity.ok(new MensajeDto("Anotador eliminado correctamente."));
+        return ResponseEntity.noContent().build();
     }
 }
