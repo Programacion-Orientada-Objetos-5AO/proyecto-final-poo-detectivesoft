@@ -1,0 +1,36 @@
+.home-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #f8f9fa;
+}
+
+.home-title {
+  font-family: "Cinzel", serif;
+  font-size: 2.5rem;
+  color: #facc15;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.home-subtitle {
+  font-size: 1.2rem;
+  color: #ddd;
+  margin-bottom: 2.5rem;
+}
+
+.home-button {
+  background-color: #facc15;
+  color: #1a1a1a;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.home-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}

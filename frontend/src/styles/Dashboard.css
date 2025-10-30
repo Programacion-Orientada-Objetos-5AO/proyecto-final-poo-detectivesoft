@@ -1,0 +1,22 @@
+.dashboard-container {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #f8f9fa;
+}
+
+.dashboard-buttons button {
+  margin: 1rem;
+  background-color: #facc15;
+  border: none;
+  color: #1a1a1a;
+  padding: 1rem 2rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-buttons button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
