@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.calculadoraParcial.dto;
+package ar.edu.huergo.gorodriguez.detectivesoft.parcial.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

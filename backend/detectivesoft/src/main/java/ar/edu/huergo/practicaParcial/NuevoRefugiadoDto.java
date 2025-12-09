@@ -1,4 +1,4 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.parcial.dto;
+package ar.edu.huergo.practicaParcial;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RequestDto {
-    Long id;
-    String operacion;
-    Double parametro1;
-    Double parametro2;
+public class NuevoRefugiadoDto {
+    private String nombre;
+    private String tipo;
+    private Integer edad;
 }

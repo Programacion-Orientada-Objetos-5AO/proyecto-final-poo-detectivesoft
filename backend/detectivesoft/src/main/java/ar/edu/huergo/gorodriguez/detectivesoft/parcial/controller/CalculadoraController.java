@@ -1,13 +1,13 @@
-package ar.edu.huergo.gorodriguez.detectivesoft.calculadoraParcial.controller;
+package ar.edu.huergo.gorodriguez.detectivesoft.parcial.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ar.edu.huergo.gorodriguez.detectivesoft.calculadoraParcial.dto.ResponseDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.calculadoraParcial.dto.RequestDto;
-import ar.edu.huergo.gorodriguez.detectivesoft.calculadoraParcial.service.CalculadoraService;
+import ar.edu.huergo.gorodriguez.detectivesoft.parcial.dto.ResponseDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.parcial.dto.RequestDto;
+import ar.edu.huergo.gorodriguez.detectivesoft.parcial.service.CalculadoraService;
 
 import org.springframework.web.bind.annotation.RequestBody;
 
